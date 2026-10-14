@@ -30,3 +30,5 @@ export const Particles = dynamic(
   () => import("@/components/Particles"),
   { ssr: false }
 );
+
+export { default as Reveal } from "@/components/Reveal";

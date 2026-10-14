@@ -2,10 +2,10 @@
 
 const NAV = [
   { href: "#architecture", label: "Architecture" },
-  { href: "#pipeline", label: "Pipeline" },
-  { href: "#binding", label: "Scale binding" },
-  { href: "#fitengine", label: "Fit engine" },
-  { href: "#decisions", label: "Design" },
+  { href: "#pipeline",     label: "Pipeline"      },
+  { href: "#binding",      label: "Scale binding" },
+  { href: "#fitengine",    label: "Fit engine"    },
+  { href: "#decisions",    label: "Design"        },
 ];
 
 export default function NavLinks() {
@@ -15,14 +15,14 @@ export default function NavLinks() {
         <a
           key={l.href}
           href={l.href}
-          className="px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-all duration-200 focus-ring nav-link"
+          className="nav-link px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-all duration-200 focus-ring"
         >
           {l.label}
         </a>
       ))}
       <style>{`
-        .nav-link { color: rgba(240,244,255,0.38); }
-        .nav-link:hover { color: rgba(240,244,255,0.85); background: rgba(255,255,255,0.05); }
+        .nav-link { color: rgba(238,240,246,0.35); font-family: 'DM Sans', sans-serif; }
+        .nav-link:hover { color: rgba(238,240,246,0.82); background: rgba(255,255,255,0.05); }
       `}</style>
     </div>
   );
