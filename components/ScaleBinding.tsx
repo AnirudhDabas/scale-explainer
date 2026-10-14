@@ -39,7 +39,7 @@ export default function ScaleBinding() {
       </p>
 
       <div className="flex flex-wrap gap-2 mb-6">
-        <span className="text-xs font-semibold self-center" style={{ color: "rgba(226,232,240,0.35)" }}>Presets:</span>
+        <span className="text-xs font-semibold self-center" style={{ color: "rgba(226,232,240,0.62)" }}>Presets:</span>
         {PRESETS.map((p) => {
           const isActive = w === p.w && h === p.h && d === p.d;
           return (
@@ -95,12 +95,12 @@ export default function ScaleBinding() {
               ].map(({ axis, formula, val }) => (
                 <div key={axis} className="flex items-center gap-2">
                   <span className="w-6 font-bold text-teal">{axis}</span>
-                  <span style={{ color: "rgba(226,232,240,0.35)" }}>= {formula}</span>
+                  <span style={{ color: "rgba(226,232,240,0.62)" }}>= {formula}</span>
                   <span className="ml-auto font-bold text-white">= {val.toFixed(4)}</span>
                 </div>
               ))}
             </div>
-            <p className="text-[10px] mt-3 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(226,232,240,0.25)" }}>
+            <p className="text-[10px] mt-3 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(226,232,240,0.50)" }}>
               Source: services/gen/app/generate_server.py, docs/SYSTEM_STATE.md
             </p>
           </div>

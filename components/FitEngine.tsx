@@ -83,7 +83,7 @@ export default function FitEngine() {
             className="px-4 pt-3 pb-1"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
           >
-            <span className="text-xs font-semibold" style={{ color: "rgba(226,232,240,0.35)" }}>
+            <span className="text-xs font-semibold" style={{ color: "rgba(226,232,240,0.62)" }}>
               Top-down view · room-demo fixture · {ROOM_W} x {ROOM_L} m
             </span>
           </div>
@@ -131,8 +131,8 @@ export default function FitEngine() {
                 width={SOFA_W * scaleX}
                 height={SOFA_D * scaleZ}
                 rx="5"
-                fill={arcOverlap ? "rgba(248,113,113,0.12)" : "rgba(226,232,240,0.06)"}
-                stroke={arcOverlap ? violationColor : "rgba(226,232,240,0.35)"}
+                fill={arcOverlap ? "rgba(248,113,113,0.12)" : "rgba(226,232,240,0.35)"}
+                stroke={arcOverlap ? violationColor : "rgba(226,232,240,0.62)"}
                 strokeWidth={arcOverlap ? 2 : 1.5}
                 style={{ transition: "all 0.25s ease" }}
               />
@@ -175,7 +175,7 @@ export default function FitEngine() {
 
             {/* Slider */}
             <div className="mt-3">
-              <div className="flex justify-between text-xs mb-2" style={{ color: "rgba(226,232,240,0.45)" }}>
+              <div className="flex justify-between text-xs mb-2" style={{ color: "rgba(226,232,240,0.72)" }}>
                 <label htmlFor="sofa-slider" className="font-medium">Sofa position (x)</label>
                 <span className="font-mono font-bold text-white/60">{sofaX.toFixed(2)} m from left wall</span>
               </div>
@@ -274,7 +274,7 @@ export default function FitEngine() {
                   &ldquo;There is no arrangement of these three pieces that keeps a 90 cm walkway
                   to the door; drop the ottoman, or go 20 cm narrower on the couch.&rdquo;
                 </p>
-                <p className="text-[10px] pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(226,232,240,0.25)" }}>
+                <p className="text-[10px] pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(226,232,240,0.50)" }}>
                   Source: BUILD_DOC.md, Component E; .claude/contracts.md, POST /solve
                 </p>
               </div>

@@ -276,7 +276,7 @@ export default function PipelineTrace() {
               style={{
                 background: "rgba(0,0,0,0.2)",
                 border: "1px solid rgba(255,255,255,0.06)",
-                color: "rgba(226,232,240,0.45)",
+                color: "rgba(226,232,240,0.72)",
               }}
             >
               {current.technical}

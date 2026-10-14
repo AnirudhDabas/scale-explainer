@@ -22,7 +22,7 @@ export default function Page() {
       <header
         className="sticky top-0 z-20"
         style={{
-          background: "rgba(4,6,9,0.65)",
+          background: "rgba(4,6,9,0.88)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           borderBottom: "1px solid rgba(255,255,255,0.05)",
@@ -140,7 +140,7 @@ export default function Page() {
               className="mx-auto mb-10 text-sm italic"
               style={{
                 maxWidth: 400,
-                color: "rgba(238,240,246,0.28)",
+                color: "rgba(241,245,255,0.55)",
                 borderLeft: "2px solid rgba(125,211,252,0.25)",
                 paddingLeft: 16,
                 textAlign: "left",
@@ -149,7 +149,7 @@ export default function Page() {
               A consumer that applies its own scale factor is a bug, not a preference.
               <footer
                 className="not-italic mt-1"
-                style={{ fontSize: 11, color: "rgba(238,240,246,0.18)" }}
+                style={{ fontSize: 11, color: "rgba(241,245,255,0.40)" }}
               >
                 .claude/contracts.md, Mesh normalisation contract
               </footer>
@@ -179,7 +179,7 @@ export default function Page() {
             </p>
             <p className="caption mx-auto mb-10">
               Demo room: {DEMO_ROOM.label}&nbsp;·&nbsp;
-              <code style={{ color: "rgba(238,240,246,0.28)" }}>fixtures/room-h.json</code>
+              <code style={{ color: "rgba(241,245,255,0.55)" }}>fixtures/room-h.json</code>
             </p>
           </Reveal>
           <Reveal delay={0.08}>
@@ -219,17 +219,17 @@ export default function Page() {
                       >
                         {d.title}
                       </h3>
-                      <p className="mt-1 text-xs leading-relaxed" style={{ color: "rgba(238,240,246,0.38)" }}>
+                      <p className="mt-1 text-xs leading-relaxed" style={{ color: "rgba(241,245,255,0.62)" }}>
                         {d.summary}
                       </p>
                     </div>
                   </summary>
                   <div
                     className="px-5 pb-5 text-xs leading-relaxed"
-                    style={{ borderTop: "1px solid rgba(255,255,255,0.055)", color: "rgba(238,240,246,0.38)" }}
+                    style={{ borderTop: "1px solid rgba(255,255,255,0.055)", color: "rgba(241,245,255,0.62)" }}
                   >
                     <p className="mt-4">{d.detail}</p>
-                    <p className="mt-3" style={{ color: "rgba(238,240,246,0.18)", fontSize: 10 }}>
+                    <p className="mt-3" style={{ color: "rgba(241,245,255,0.40)", fontSize: 10 }}>
                       {d.source}
                     </p>
                   </div>
@@ -254,7 +254,7 @@ export default function Page() {
           className="max-w-5xl mx-auto px-6 sm:px-10 py-6 flex flex-col sm:flex-row items-center gap-2 justify-between text-center sm:text-left"
           style={{ fontSize: 12, color: "rgba(238,240,246,0.22)" }}
         >
-          <span style={{ color: "rgba(238,240,246,0.38)" }}>
+          <span style={{ color: "rgba(241,245,255,0.62)" }}>
             <span style={{ color: "rgba(238,240,246,0.5)", fontWeight: 600 }}>Scale</span>
             {" "}by{" "}
             <FooterLink href="https://ca.linkedin.com/in/justin-tingxuan-wang">Justin</FooterLink>
@@ -266,7 +266,7 @@ export default function Page() {
             <FooterLink href="https://www.linkedin.com/in/pauligwe">Paul</FooterLink>
             {"."}
           </span>
-          <span style={{ color: "rgba(238,240,246,0.12)" }}>
+          <span style={{ color: "rgba(241,245,255,0.28)" }}>
             Architecture · Pipeline · Binding · Fit
           </span>
         </div>

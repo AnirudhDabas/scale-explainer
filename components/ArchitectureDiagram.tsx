@@ -216,7 +216,7 @@ export default function ArchitectureDiagram() {
           <button
             onClick={() => setSelectedNode(null)}
             className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-lg focus-ring transition-colors text-lg"
-            style={{ color: "rgba(240,244,255,0.35)", background: "rgba(255,255,255,0.05)" }}
+            style={{ color: "rgba(240,244,255,0.62)", background: "rgba(255,255,255,0.05)" }}
             aria-label="Close"
           >
             ×
@@ -225,8 +225,8 @@ export default function ArchitectureDiagram() {
           <h3 className="text-base font-bold mb-2" style={{ color: "#f0f4ff" }}>{detail.title}</h3>
           <p className="text-sm leading-relaxed mb-3" style={{ color: "rgba(240,244,255,0.5)" }}>{detail.role}</p>
           <div className="text-xs space-y-1.5 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-            <p style={{ color: "rgba(240,244,255,0.35)" }}><span className="font-semibold" style={{ color: "rgba(240,244,255,0.5)" }}>Tech:</span> {detail.tech}</p>
-            <p style={{ color: "rgba(240,244,255,0.25)" }}><span className="font-semibold" style={{ color: "rgba(240,244,255,0.35)" }}>Source:</span> {detail.source}</p>
+            <p style={{ color: "rgba(240,244,255,0.62)" }}><span className="font-semibold" style={{ color: "rgba(240,244,255,0.5)" }}>Tech:</span> {detail.tech}</p>
+            <p style={{ color: "rgba(240,244,255,0.50)" }}><span className="font-semibold" style={{ color: "rgba(240,244,255,0.62)" }}>Source:</span> {detail.source}</p>
           </div>
         </div>
       )}
@@ -268,10 +268,10 @@ function N({
       {/* Label */}
       <text x={mid} y={y + 28} fontSize="12" fill={sel ? acc : "rgba(240,244,255,0.85)"} fontWeight="700" textAnchor="middle">{label}</text>
       {/* Sub line 1 */}
-      <text x={mid} y={y + 44} fontSize="9" fill="rgba(240,244,255,0.38)" textAnchor="middle">{sub1}</text>
+      <text x={mid} y={y + 44} fontSize="9" fill="rgba(240,244,255,0.62)" textAnchor="middle">{sub1}</text>
       {/* Sub line 2 — only if node is tall enough */}
       {h >= 70 && (
-        <text x={mid} y={y + 57} fontSize="9" fill="rgba(240,244,255,0.25)" textAnchor="middle">{sub2}</text>
+        <text x={mid} y={y + 57} fontSize="9" fill="rgba(240,244,255,0.50)" textAnchor="middle">{sub2}</text>
       )}
     </g>
   );
