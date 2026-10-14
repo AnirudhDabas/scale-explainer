@@ -40,7 +40,9 @@ export default function SceneBackground() {
     const fill = new THREE.DirectionalLight(0x7dd3fc, 2.8);
     fill.position.set(-6, 5, 3);
     scene.add(fill);
-    scene.add(Object.assign(new THREE.DirectionalLight(0xfff0e0, 1.2), { position: new THREE.Vector3(0, 4, -7) }));
+    const back = new THREE.DirectionalLight(0xfff0e0, 1.2);
+    back.position.set(0, 4, -7);
+    scene.add(back);
     const pt = new THREE.PointLight(0x7dd3fc, 3.5, 8);
     pt.position.set(0, 3, 2);
     scene.add(pt);
