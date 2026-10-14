@@ -31,4 +31,9 @@ export const Particles = dynamic(
   { ssr: false }
 );
 
+export const SceneBackground = dynamic(
+  () => import("@/components/SceneBackground"),
+  { ssr: false }
+);
+
 export { default as Reveal } from "@/components/Reveal";
