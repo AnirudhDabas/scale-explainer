@@ -5,6 +5,7 @@ import {
   ScaleBinding,
   FitEngine,
   SceneBackground,
+  LoadingScreen,
   Reveal,
 } from "@/components/ClientSections";
 import NavLinks from "@/components/NavLinks";
@@ -13,6 +14,7 @@ import FooterLink from "@/components/FooterLink";
 export default function Page() {
   return (
     <>
+      <LoadingScreen />
       {/* 3D scene sits at z-0, content at z-10 */}
       <SceneBackground />
 

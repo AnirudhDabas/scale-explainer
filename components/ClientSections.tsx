@@ -36,4 +36,9 @@ export const SceneBackground = dynamic(
   { ssr: false }
 );
 
+export const LoadingScreen = dynamic(
+  () => import("@/components/LoadingScreen"),
+  { ssr: false }
+);
+
 export { default as Reveal } from "@/components/Reveal";
