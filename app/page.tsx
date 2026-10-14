@@ -29,7 +29,7 @@ export default function Page() {
         <nav className="relative z-10 max-w-5xl mx-auto px-6 sm:px-10 h-14 flex items-center justify-between gap-4">
           <span
             className="font-mono text-xs font-semibold tracking-[0.18em] uppercase shrink-0"
-            style={{ color: "rgba(110,210,200,0.75)" }}
+            style={{ color: "rgba(125,211,252,0.75)" }}
           >
             SCALE
           </span>
@@ -49,7 +49,7 @@ export default function Page() {
             <h1 id="hero-heading" className="display mx-auto mb-7" style={{ maxWidth: 780 }}>
               Scan anything real.
               <br />
-              <span style={{ color: "rgb(110,210,200)" }}>Place it true.</span>
+              <span style={{ color: "rgb(125,211,252)" }}>Place it true.</span>
             </h1>
           </Reveal>
 
@@ -139,7 +139,7 @@ export default function Page() {
               style={{
                 maxWidth: 400,
                 color: "rgba(238,240,246,0.28)",
-                borderLeft: "2px solid rgba(110,210,200,0.25)",
+                borderLeft: "2px solid rgba(125,211,252,0.25)",
                 paddingLeft: 16,
                 textAlign: "left",
               }}
@@ -206,7 +206,7 @@ export default function Page() {
                   <summary className="flex items-start gap-3 p-5 focus-ring rounded-2xl">
                     <span
                       className="shrink-0 mt-0.5 text-xs transition-transform duration-200 group-open:rotate-90"
-                      style={{ color: "rgb(110,210,200)" }}
+                      style={{ color: "rgb(125,211,252)" }}
                     >
                       ▶
                     </span>

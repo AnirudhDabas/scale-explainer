@@ -6,7 +6,7 @@ import { PIPELINE_STEPS } from "@/data/content";
 type Visual = "lidar" | "upload" | "queue" | "sf3d" | "binding" | "sse" | "place";
 
 const C = {
-  teal: "#0fc4b8",
+  teal: "#7dd3fc",
   blue: "#5b9cf6",
   orange: "#fb8c42",
   purple: "#a78bfa",
@@ -220,7 +220,7 @@ export default function PipelineTrace() {
             onClick={() => { setStep(i); setExpanded(false); }}
             className="flex-1 h-1 rounded-full transition-all duration-300 focus-ring"
             style={{
-              background: i === step ? "#0fc4b8" : i < step ? "rgba(15,196,184,0.3)" : "rgba(255,255,255,0.1)",
+              background: i === step ? "#7dd3fc" : i < step ? "rgba(15,196,184,0.3)" : "rgba(255,255,255,0.1)",
             }}
             aria-label={`Step ${s.id}: ${s.title}`}
             aria-current={i === step ? "step" : undefined}
@@ -253,7 +253,7 @@ export default function PipelineTrace() {
             <span className="text-xs font-bold tracking-widest text-teal mt-0.5 shrink-0">{current.label}</span>
             <div>
               <h3 className="text-xl font-bold text-white leading-tight">{current.title}</h3>
-              <p className="text-sm font-medium mt-0.5" style={{ color: "#0fc4b8" }}>{current.subtitle}</p>
+              <p className="text-sm font-medium mt-0.5" style={{ color: "#7dd3fc" }}>{current.subtitle}</p>
             </div>
           </div>
 
@@ -315,7 +315,7 @@ export default function PipelineTrace() {
             style={{
               background: i === step ? "rgba(15,196,184,0.15)" : "rgba(255,255,255,0.04)",
               border: `1px solid ${i === step ? "rgba(15,196,184,0.4)" : "rgba(255,255,255,0.08)"}`,
-              color: i === step ? "#0fc4b8" : "rgba(226,232,240,0.4)",
+              color: i === step ? "#7dd3fc" : "rgba(226,232,240,0.4)",
               transform: i === step ? "translateY(-1px)" : "none",
               boxShadow: i === step ? "0 4px 16px rgba(15,196,184,0.15)" : "none",
             }}

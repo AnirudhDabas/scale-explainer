@@ -62,7 +62,7 @@ export default function FitEngine() {
   const arcEndY = m2z(hingeZ);
 
   const violationColor = "#f87171";
-  const okColor = "#0fc4b8";
+  const okColor = "#7dd3fc";
 
   return (
     <div>

@@ -23,8 +23,8 @@ export default function FooterLink({
           transition: color 0.15s ease, border-color 0.15s ease;
         }
         .footer-person-link:hover {
-          color: rgb(110,210,200);
-          border-bottom-color: rgba(110,210,200,0.45);
+          color: rgb(125,211,252);
+          border-bottom-color: rgba(125,211,252,0.45);
         }
       `}</style>
     </a>

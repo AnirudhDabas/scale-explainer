@@ -3,27 +3,8 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-// Real dimensions from docs/SYSTEM_STATE.md
+// Real dimensions: docs/SYSTEM_STATE.md — Room H
 const ROOM = { w: 4.72, h: 2.96, d: 2.76 };
-
-// Real bboxMeters from .claude/contracts.md fixture
-const OBJECTS = [
-  { w: 0.3126, h: 0.0155, d: 0.2212, label: "MacBook Pro 14" },
-  { w: 0.44,   h: 0.88,   d: 0.44,   label: "chair" },
-  { w: 1.80,   h: 0.85,   d: 0.90,   label: "sofa" },
-  { w: 0.80,   h: 0.75,   d: 0.40,   label: "desk" },
-  { w: 0.12,   h: 1.40,   d: 0.12,   label: "lamp" },
-];
-
-const TEAL   = new THREE.Color(0x0fc4b8);
-const WHITE  = new THREE.Color(0xffffff);
-const PURPLE = new THREE.Color(0xa78bfa);
-
-function edges(geo: THREE.BufferGeometry, color: THREE.Color, opacity: number) {
-  const e = new THREE.EdgesGeometry(geo);
-  const m = new THREE.LineBasicMaterial({ color, transparent: true, opacity });
-  return new THREE.LineSegments(e, m);
-}
 
 export default function SceneBackground() {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -35,210 +16,335 @@ export default function SceneBackground() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setClearColor(0x000000, 0);
     mountRef.current.appendChild(renderer.domElement);
 
-    // ── Scene / Camera ────────────────────────────────────────
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(3.5, 3.5, 7);
-    camera.lookAt(0, 1, 0);
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(4, 3.5, 8);
+    camera.lookAt(0, 1.2, 0);
 
-    // ── Floor grid ────────────────────────────────────────────
-    const grid = new THREE.GridHelper(12, 24, TEAL, TEAL);
-    (grid.material as THREE.Material).transparent = true;
-    (grid.material as THREE.Material).opacity = 0.06;
-    scene.add(grid);
+    // ── Lighting ──────────────────────────────────────────────
+    scene.add(new THREE.AmbientLight(0xddeeff, 0.55));
 
-    // ── Room wireframe (actual demo room dimensions) ──────────
-    const room = edges(new THREE.BoxGeometry(ROOM.w, ROOM.h, ROOM.d), TEAL, 0.12);
-    room.position.y = ROOM.h / 2;
-    scene.add(room);
+    const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+    sun.position.set(6, 10, 6);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    scene.add(sun);
 
-    // ── Floating scanned objects ──────────────────────────────
-    const floaters: { mesh: THREE.LineSegments; vy: number; vr: number; phase: number }[] = [];
-    OBJECTS.forEach((obj, i) => {
-      const angle = (i / OBJECTS.length) * Math.PI * 2 - 0.4;
-      const r = 2.2 + (i % 2) * 0.6;
-      const mesh = edges(new THREE.BoxGeometry(obj.w, obj.h, obj.d), TEAL, 0.45);
-      mesh.position.set(Math.cos(angle) * r, obj.h / 2 + 0.6, Math.sin(angle) * r);
-      mesh.rotation.y = angle + 0.4;
-      scene.add(mesh);
-      floaters.push({ mesh, vy: 0.28 + i * 0.07, vr: 0.004 + i * 0.001, phase: i * 1.3 });
-    });
-    // Store base Y after positioning
-    floaters.forEach(f => { f.mesh.userData.by = f.mesh.position.y; });
+    // Soft fill from left — sky-blue tint
+    const fill = new THREE.DirectionalLight(0x7dd3fc, 0.35);
+    fill.position.set(-5, 4, 2);
+    scene.add(fill);
 
-    // ── VR headset (Meta Quest style) ────────────────────────
-    const vrGroup = new THREE.Group();
-    vrGroup.add(edges(new THREE.BoxGeometry(0.20, 0.11, 0.10), WHITE, 0.22));
+    // Subtle back light
+    const back = new THREE.DirectionalLight(0xffffff, 0.2);
+    back.position.set(0, 3, -6);
+    scene.add(back);
 
-    // Two circular lenses
-    for (const x of [-0.05, 0.05]) {
-      const lens = edges(new THREE.CylinderGeometry(0.032, 0.032, 0.012, 10), TEAL, 0.35);
+    // ── Helpers ───────────────────────────────────────────────
+    const mat = (color: number, opacity = 1, metal = 0, rough = 0.7) =>
+      new THREE.MeshStandardMaterial({ color, opacity, transparent: opacity < 1, metalness: metal, roughness: rough });
+
+    const box = (w: number, h: number, d: number, m: THREE.Material) => {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
+    };
+
+    const cyl = (rt: number, rb: number, h: number, seg: number, m: THREE.Material) => {
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), m);
+      mesh.castShadow = true;
+      return mesh;
+    };
+
+    // ── Room ─────────────────────────────────────────────────
+    // Floor
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(ROOM.w, ROOM.d),
+      mat(0x1a2235, 0.55, 0, 0.9)
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    // Floor grid lines
+    const gridHelper = new THREE.GridHelper(ROOM.w, 12, 0x7dd3fc, 0x7dd3fc);
+    (gridHelper.material as THREE.Material).transparent = true;
+    (gridHelper.material as THREE.Material).opacity = 0.08;
+    scene.add(gridHelper);
+
+    // Thin room boundary wire (just the floor outline)
+    const roomEdge = new THREE.EdgesGeometry(new THREE.BoxGeometry(ROOM.w, 0.005, ROOM.d));
+    const roomLine = new THREE.LineSegments(
+      roomEdge,
+      new THREE.LineBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.25 })
+    );
+    scene.add(roomLine);
+
+    // ── MacBook Pro 14 (real dims: 0.3126 × 0.0155 × 0.2212 m) ──
+    const macGroup = new THREE.Group();
+
+    // Base (aluminium space grey)
+    const macBase = box(0.3126, 0.0155, 0.2212, mat(0x3a3a3c, 1, 0.6, 0.3));
+    macGroup.add(macBase);
+
+    // Screen lid (slightly tilted open)
+    const macLid = box(0.3026, 0.195, 0.006, mat(0x2e2e30, 1, 0.6, 0.3));
+    macLid.position.set(0, 0.105, -0.107);
+    macLid.rotation.x = -1.25; // 72° open
+    macGroup.add(macLid);
+
+    // Screen bezel inside
+    const screen = box(0.274, 0.172, 0.002, mat(0x111418, 1, 0, 0.95));
+    screen.position.set(0, 0.105, -0.107);
+    screen.rotation.x = -1.25;
+    screen.position.z += 0.0045;
+    macGroup.add(screen);
+
+    // Screen glow (emissive)
+    const screenGlow = box(0.268, 0.166, 0.001,
+      new THREE.MeshStandardMaterial({ color: 0x1e3a5f, emissive: new THREE.Color(0x1e3a5f), emissiveIntensity: 0.6, roughness: 1 })
+    );
+    screenGlow.position.copy(screen.position);
+    screenGlow.rotation.copy(screen.rotation);
+    screenGlow.position.z += 0.002;
+    macGroup.add(screenGlow);
+
+    macGroup.position.set(-1.2, 0.0078, 0.3);
+    macGroup.rotation.y = 0.6;
+    scene.add(macGroup);
+
+    // ── Meta Quest 3 ─────────────────────────────────────────
+    const questGroup = new THREE.Group();
+
+    // Main body — white
+    const questBody = box(0.19, 0.11, 0.10, mat(0xf0eeea, 1, 0.05, 0.55));
+    questGroup.add(questBody);
+
+    // Lens housings (two circles on front)
+    for (const xOff of [-0.048, 0.048]) {
+      const housing = cyl(0.034, 0.034, 0.018, 20, mat(0x1a1a1a, 1, 0.2, 0.7));
+      housing.rotation.x = Math.PI / 2;
+      housing.position.set(xOff, 0, -0.056);
+      questGroup.add(housing);
+
+      // Lens glass (blue tinted)
+      const lens = cyl(0.028, 0.028, 0.004, 20,
+        new THREE.MeshStandardMaterial({ color: 0x3a7bd5, transparent: true, opacity: 0.7, metalness: 0.1, roughness: 0.0 })
+      );
       lens.rotation.x = Math.PI / 2;
-      lens.position.set(x, 0, -0.055);
-      vrGroup.add(lens);
+      lens.position.set(xOff, 0, -0.064);
+      questGroup.add(lens);
     }
 
-    // Strap
-    const strap = edges(new THREE.TorusGeometry(0.12, 0.008, 4, 16, Math.PI), WHITE, 0.14);
-    strap.rotation.x = Math.PI / 2;
-    strap.position.z = 0.06;
-    vrGroup.add(strap);
+    // Strap (rubber-like)
+    const strapL = box(0.14, 0.04, 0.02, mat(0xd6d3ce, 1, 0, 0.8));
+    strapL.position.set(-0.165, 0, 0.01);
+    questGroup.add(strapL);
+    const strapR = box(0.14, 0.04, 0.02, mat(0xd6d3ce, 1, 0, 0.8));
+    strapR.position.set(0.165, 0, 0.01);
+    questGroup.add(strapR);
 
     // Controllers
-    for (const [cx, cz] of [[-0.2, 0.15], [0.2, 0.15]]) {
-      const ctrl = new THREE.Group();
-      ctrl.add(edges(new THREE.CylinderGeometry(0.018, 0.014, 0.12, 8), WHITE, 0.18));
-      const ring = edges(new THREE.TorusGeometry(0.03, 0.005, 4, 10), WHITE, 0.15);
-      ring.position.y = 0.05;
-      ctrl.add(ring);
-      ctrl.position.set(cx, -0.12, cz);
-      ctrl.rotation.x = -0.5;
-      vrGroup.add(ctrl);
+    for (const [cx, cz] of [[-0.28, 0.08], [0.28, 0.08]]) {
+      const ctrlGroup = new THREE.Group();
+      const grip = cyl(0.018, 0.014, 0.13, 10, mat(0xe8e6e2, 1, 0.05, 0.6));
+      ctrlGroup.add(grip);
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(0.032, 0.005, 8, 20),
+        mat(0xd0cec9, 1, 0.1, 0.5)
+      );
+      ring.position.y = 0.055;
+      ring.rotation.x = 0.2;
+      ctrlGroup.add(ring);
+      ctrlGroup.position.set(cx as number, -0.14, cz as number);
+      ctrlGroup.rotation.x = -0.5;
+      questGroup.add(ctrlGroup);
     }
 
-    vrGroup.position.set(-3.2, 2.2, -1.5);
-    scene.add(vrGroup);
+    questGroup.position.set(-2.8, 1.8, -0.5);
+    questGroup.rotation.y = 0.5;
+    scene.add(questGroup);
 
-    // ── iPhone (Expo capture device) ─────────────────────────
+    // ── iPhone 15 Pro ──────────────────────────────────────────
     const phoneGroup = new THREE.Group();
-    phoneGroup.add(edges(new THREE.BoxGeometry(0.075, 0.160, 0.008), WHITE, 0.20));
 
-    // Camera island
-    const cam = edges(new THREE.BoxGeometry(0.022, 0.022, 0.004), TEAL, 0.35);
-    cam.position.set(0.018, 0.056, -0.006);
-    phoneGroup.add(cam);
+    // Body — titanium
+    const phoneBody = box(0.0712, 0.1494, 0.0083,
+      new THREE.MeshStandardMaterial({ color: 0x8a8a8a, metalness: 0.75, roughness: 0.25 })
+    );
+    phoneGroup.add(phoneBody);
 
-    // LiDAR dot
-    const lidar = edges(new THREE.CylinderGeometry(0.006, 0.006, 0.004, 8), TEAL, 0.5);
-    lidar.rotation.x = Math.PI / 2;
-    lidar.position.set(-0.016, 0.056, -0.006);
-    phoneGroup.add(lidar);
+    // Screen face
+    const phoneFace = box(0.063, 0.137, 0.001, mat(0x0c0c0e, 1, 0, 0.9));
+    phoneFace.position.z = 0.0047;
+    phoneGroup.add(phoneFace);
 
-    phoneGroup.position.set(3.4, 1.8, -1.0);
-    phoneGroup.rotation.z = -0.18;
+    // Screen glow
+    const phoneScreen = box(0.058, 0.128, 0.001,
+      new THREE.MeshStandardMaterial({
+        color: 0x0d2540,
+        emissive: new THREE.Color(0x0d2540),
+        emissiveIntensity: 0.8,
+        roughness: 1,
+      })
+    );
+    phoneScreen.position.z = 0.0052;
+    phoneGroup.add(phoneScreen);
+
+    // Camera island (titanium)
+    const camIsland = box(0.026, 0.026, 0.004, mat(0x6a6a6a, 1, 0.8, 0.3));
+    camIsland.position.set(0.018, 0.054, -0.0046);
+    phoneGroup.add(camIsland);
+
+    // 3 camera lenses
+    for (const [lx, ly] of [[0, 0.006], [-0.008, -0.006], [0.008, -0.006]]) {
+      const camLens = cyl(0.0045, 0.0045, 0.003, 12,
+        new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.3, roughness: 0.4 })
+      );
+      camLens.rotation.x = Math.PI / 2;
+      camLens.position.set(0.018 + (lx as number), 0.054 + (ly as number), -0.006);
+      phoneGroup.add(camLens);
+    }
+
+    phoneGroup.position.set(3.0, 1.6, -0.8);
+    phoneGroup.rotation.y = -0.5;
+    phoneGroup.rotation.z = 0.08;
     scene.add(phoneGroup);
 
-    // ── LiDAR scan beam from phone ────────────────────────────
-    const beamMat = new THREE.MeshBasicMaterial({ color: TEAL, transparent: true, opacity: 0.03, side: THREE.DoubleSide });
+    // ── Sofa (scanned object) ─────────────────────────────────
+    const sofaGroup = new THREE.Group();
+
+    // Seat cushion
+    const seat = box(1.80, 0.18, 0.70, mat(0x8b7355, 1, 0, 0.85));
+    seat.position.y = 0.38;
+    sofaGroup.add(seat);
+
+    // Back cushion
+    const back2 = box(1.80, 0.52, 0.18, mat(0x7a6348, 1, 0, 0.85));
+    back2.position.set(0, 0.71, -0.26);
+    sofaGroup.add(back2);
+
+    // Frame / base
+    const base2 = box(1.84, 0.28, 0.76, mat(0x5c4a36, 1, 0, 0.9));
+    base2.position.y = 0.14;
+    sofaGroup.add(base2);
+
+    // Arms
+    for (const x of [-0.84, 0.84]) {
+      const arm = box(0.12, 0.55, 0.70, mat(0x6b5240, 1, 0, 0.85));
+      arm.position.set(x, 0.375, 0);
+      sofaGroup.add(arm);
+    }
+
+    sofaGroup.position.set(0.8, 0, -0.9);
+    sofaGroup.rotation.y = -0.3;
+    scene.add(sofaGroup);
+
+    // ── Desk / side table ─────────────────────────────────────
+    const tableGroup = new THREE.Group();
+    const tabletop = box(0.80, 0.04, 0.50, mat(0xc8a87a, 1, 0.1, 0.6));
+    tabletop.position.y = 0.72;
+    tableGroup.add(tabletop);
+    for (const [tx, tz] of [[-0.34, -0.20], [0.34, -0.20], [-0.34, 0.20], [0.34, 0.20]]) {
+      const leg = box(0.04, 0.70, 0.04, mat(0xb09060, 1, 0, 0.8));
+      leg.position.set(tx as number, 0.35, tz as number);
+      tableGroup.add(leg);
+    }
+    tableGroup.position.set(2.2, 0, 1.0);
+    tableGroup.rotation.y = 0.4;
+    scene.add(tableGroup);
+
+    // ── LiDAR scan beam (phone → room) ────────────────────────
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: 0x7dd3fc,
+      transparent: true,
+      opacity: 0.04,
+      side: THREE.DoubleSide,
+    });
     const beam = new THREE.Mesh(new THREE.PlaneGeometry(ROOM.w, ROOM.h), beamMat);
     beam.rotation.y = Math.PI / 2;
     beam.position.y = ROOM.h / 2;
     scene.add(beam);
 
-    // Scan line (a brighter thin plane)
-    const scanLineMat = new THREE.MeshBasicMaterial({ color: TEAL, transparent: true, opacity: 0.18, side: THREE.DoubleSide });
-    const scanLine = new THREE.Mesh(new THREE.PlaneGeometry(0.012, ROOM.h), scanLineMat);
+    const scanLineMat = new THREE.MeshBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.22, side: THREE.DoubleSide });
+    const scanLine = new THREE.Mesh(new THREE.PlaneGeometry(0.008, ROOM.h), scanLineMat);
     scanLine.rotation.y = Math.PI / 2;
     scanLine.position.y = ROOM.h / 2;
     scene.add(scanLine);
 
-    // ── Point cloud (LiDAR dots on room surfaces) ─────────────
-    const ptCount = 320;
-    const ptPositions = new Float32Array(ptCount * 3);
+    // ── Bounding box highlight on MacBook ─────────────────────
+    const bbMat = new THREE.LineBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.6 });
+    const bb = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(0.3126, 0.0155, 0.2212)),
+      bbMat
+    );
+    scene.add(bb);
+
+    // ── Point cloud ───────────────────────────────────────────
+    const ptCount = 280;
+    const pos = new Float32Array(ptCount * 3);
     for (let i = 0; i < ptCount; i++) {
-      const face = Math.floor(Math.random() * 3);
-      if (face === 0) { // floor
-        ptPositions[i*3]   = (Math.random() - 0.5) * ROOM.w;
-        ptPositions[i*3+1] = 0.01;
-        ptPositions[i*3+2] = (Math.random() - 0.5) * ROOM.d;
-      } else if (face === 1) { // back wall
-        ptPositions[i*3]   = (Math.random() - 0.5) * ROOM.w;
-        ptPositions[i*3+1] = Math.random() * ROOM.h;
-        ptPositions[i*3+2] = -ROOM.d / 2;
-      } else { // side wall
-        ptPositions[i*3]   = -ROOM.w / 2;
-        ptPositions[i*3+1] = Math.random() * ROOM.h;
-        ptPositions[i*3+2] = (Math.random() - 0.5) * ROOM.d;
+      const face = i % 3;
+      if (face === 0) {
+        pos[i*3] = (Math.random()-.5)*ROOM.w; pos[i*3+1] = 0.005; pos[i*3+2] = (Math.random()-.5)*ROOM.d;
+      } else if (face === 1) {
+        pos[i*3] = (Math.random()-.5)*ROOM.w; pos[i*3+1] = Math.random()*ROOM.h; pos[i*3+2] = -ROOM.d/2;
+      } else {
+        pos[i*3] = -ROOM.w/2; pos[i*3+1] = Math.random()*ROOM.h; pos[i*3+2] = (Math.random()-.5)*ROOM.d;
       }
     }
     const ptGeo = new THREE.BufferGeometry();
-    ptGeo.setAttribute("position", new THREE.BufferAttribute(ptPositions, 3));
-    const ptMat = new THREE.PointsMaterial({ color: TEAL, size: 0.025, transparent: true, opacity: 0.5 });
-    const pointCloud = new THREE.Points(ptGeo, ptMat);
-    scene.add(pointCloud);
-
-    // ── Bounding box highlight (one object being "scanned") ───
-    const highlightMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
-    const highlight = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxGeometry(0.3126, 0.0155, 0.2212)),
-      highlightMat
-    );
-    highlight.position.copy(floaters[0].mesh.position);
-    scene.add(highlight);
-
-    // ── Measurement dashes (3 axis lines from one corner) ─────
-    const dashMat = new THREE.LineBasicMaterial({ color: PURPLE, transparent: true, opacity: 0.45 });
-    const mk = (ax: THREE.Vector3, bx: THREE.Vector3) => {
-      const g = new THREE.BufferGeometry().setFromPoints([ax, bx]);
-      return new THREE.Line(g, dashMat);
-    };
-    const mBase = new THREE.Vector3(
-      floaters[0].mesh.position.x - 0.3126 / 2,
-      floaters[0].mesh.position.y - 0.0155 / 2,
-      floaters[0].mesh.position.z - 0.2212 / 2
-    );
-    const mW = mk(mBase, mBase.clone().add(new THREE.Vector3(0.3126, 0, 0)));
-    const mH = mk(mBase, mBase.clone().add(new THREE.Vector3(0, 0.0155, 0)));
-    const mD = mk(mBase, mBase.clone().add(new THREE.Vector3(0, 0, 0.2212)));
-    scene.add(mW, mH, mD);
+    ptGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    scene.add(new THREE.Points(ptGeo, new THREE.PointsMaterial({ color: 0x7dd3fc, size: 0.022, transparent: true, opacity: 0.45 })));
 
     // ── Animate ───────────────────────────────────────────────
-    let t = 0;
-    let animId: number;
+    let t = 0, animId: number;
+    const macBaseY = macGroup.position.y;
+    const questBaseY = questGroup.position.y;
+    const phoneBaseY = phoneGroup.position.y;
+    const sofaBaseY = sofaGroup.position.y;
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      t += 0.006;
+      t += 0.005;
 
-      // Slow camera orbit
-      camera.position.x = 3.5 * Math.cos(t * 0.12) + 0.5 * Math.sin(t * 0.07);
-      camera.position.z = 7   * Math.sin(t * 0.12) + 0.5 * Math.cos(t * 0.07);
-      camera.position.y = 3.5 + Math.sin(t * 0.08) * 0.4;
+      // Camera slow orbit
+      camera.position.x = 4   * Math.cos(t * 0.1) + 0.6 * Math.sin(t * 0.07);
+      camera.position.z = 8   * Math.sin(t * 0.1) + 0.4 * Math.cos(t * 0.06);
+      camera.position.y = 3.5 + Math.sin(t * 0.08) * 0.35;
       camera.lookAt(0, 1.2, 0);
 
-      // Room breathe
-      room.material.opacity = 0.09 + Math.sin(t * 0.5) * 0.03;
+      // MacBook floats and spins
+      macGroup.position.y = macBaseY + Math.sin(t * 0.7) * 0.14;
+      macGroup.rotation.y += 0.004;
 
-      // Floaters
-      floaters.forEach(f => {
-        f.mesh.position.y = f.mesh.userData.by + Math.sin(t * f.vy + f.phase) * 0.18;
-        f.mesh.rotation.y += f.vr;
-      });
+      // Quest floats
+      questGroup.position.y = questBaseY + Math.sin(t * 0.55 + 1.1) * 0.16;
+      questGroup.rotation.y += 0.006;
 
-      // Highlight tracks floater 0
-      highlight.position.copy(floaters[0].mesh.position);
-      highlight.rotation.copy(floaters[0].mesh.rotation);
-      highlight.material.opacity = 0.4 + Math.sin(t * 2.5) * 0.3;
+      // Phone floats
+      phoneGroup.position.y = phoneBaseY + Math.sin(t * 0.65 + 2.2) * 0.13;
+      phoneGroup.rotation.y -= 0.003;
 
-      // Measurement lines track floater 0
-      const hp = floaters[0].mesh.position;
-      const hy = floaters[0].mesh.rotation.y;
-      const cos = Math.cos(hy), sin = Math.sin(hy);
-      const corner = new THREE.Vector3(hp.x - cos*0.3126/2 + sin*0.2212/2, hp.y - 0.0155/2, hp.z - sin*0.3126/2 - cos*0.2212/2);
-      mW.geometry.setFromPoints([corner, corner.clone().add(new THREE.Vector3(cos*0.3126, 0, sin*0.3126))]);
-      mH.geometry.setFromPoints([corner, corner.clone().add(new THREE.Vector3(0, 0.0155, 0))]);
-      mD.geometry.setFromPoints([corner, corner.clone().add(new THREE.Vector3(-sin*0.2212, 0, cos*0.2212))]);
+      // Sofa gentle bob (it's heavy!)
+      sofaGroup.position.y = sofaBaseY + Math.sin(t * 0.3 + 0.5) * 0.04;
 
-      // VR headset float + rotate
-      vrGroup.position.y = 2.2 + Math.sin(t * 0.45) * 0.18;
-      vrGroup.rotation.y = t * 0.18;
+      // Bounding box tracks MacBook
+      bb.position.copy(macGroup.position);
+      bb.position.y += 0.0078;
+      bb.rotation.y = macGroup.rotation.y;
+      bbMat.opacity = 0.35 + Math.sin(t * 2.5) * 0.25;
 
-      // Phone float + tilt
-      phoneGroup.position.y = 1.8 + Math.sin(t * 0.55 + 1.2) * 0.14;
-      phoneGroup.rotation.z = -0.18 + Math.sin(t * 0.3) * 0.06;
-      phoneGroup.rotation.x = Math.sin(t * 0.2) * 0.04;
-
-      // Scan beam sweep
-      const bx = Math.sin(t * 0.6) * (ROOM.w / 2);
+      // Scan beam sweeps
+      const bx = Math.sin(t * 0.55) * (ROOM.w / 2);
       beam.position.x = bx;
       scanLine.position.x = bx;
-      beamMat.opacity = 0.025 + Math.sin(t * 1.2) * 0.01;
-
-      // Point cloud subtle rotation
-      pointCloud.rotation.y = t * 0.01;
 
       renderer.render(scene, camera);
     };

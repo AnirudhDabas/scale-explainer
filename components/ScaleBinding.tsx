@@ -131,8 +131,8 @@ export default function ScaleBinding() {
               <text x="70" y="156" fontSize="8" fill="rgba(226,232,240,0.3)" textAnchor="middle">normalised units</text>
 
               {/* Arrow */}
-              <path d="M115 110 H155" stroke="#0fc4b8" strokeWidth="2" fill="none" markerEnd="url(#cbarr-sc)" />
-              <text x="135" y="103" fontSize="8" fill="#0fc4b8" textAnchor="middle" fontWeight="700">bind</text>
+              <path d="M115 110 H155" stroke="#7dd3fc" strokeWidth="2" fill="none" markerEnd="url(#cbarr-sc)" />
+              <text x="135" y="103" fontSize="8" fill="#7dd3fc" textAnchor="middle" fontWeight="700">bind</text>
 
               {/* Bound mesh */}
               <text x="220" y="18" fontSize="10" fill="rgba(15,196,184,0.8)" textAnchor="middle" fontWeight="600">Bound to bboxMeters</text>
@@ -153,7 +153,7 @@ export default function ScaleBinding() {
 
               <defs>
                 <marker id="cbarr-sc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-                  <path d="M0 0L10 5L0 10Z" fill="#0fc4b8" />
+                  <path d="M0 0L10 5L0 10Z" fill="#7dd3fc" />
                 </marker>
               </defs>
             </svg>

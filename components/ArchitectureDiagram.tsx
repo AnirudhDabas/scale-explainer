@@ -77,7 +77,7 @@ const NODES: Record<NodeId, NodeDetail> = {
 };
 
 const FLOWS: Record<string, { label: string; nodes: NodeId[]; color: string }> = {
-  capture: { label: "Capture object",  nodes: ["iphone","workers","d1r2vec","gen","baseten","durable","quest"], color: "#0fc4b8" },
+  capture: { label: "Capture object",  nodes: ["iphone","workers","d1r2vec","gen","baseten","durable","quest"], color: "#7dd3fc" },
   search:  { label: "Search library",  nodes: ["quest","workers","d1r2vec"],                                    color: "#5b9cf6" },
   arrange: { label: "Arrange room",    nodes: ["quest","agent","fit","workers","durable"],                      color: "#a78bfa" },
   find:    { label: "Find in store",   nodes: ["quest","workers","ingest","gen","baseten"],                     color: "#fb8c42" },
@@ -101,7 +101,7 @@ const FLOWS: Record<string, { label: string; nodes: NodeId[]; color: string }> =
 // ingest:     x=765, y=18,  w=175, h=75  → cx=852, cy=55
 // baseten:    x=617, y=228, w=333, h=105 → cx=783, cy=280
 
-const TEAL   = "#0fc4b8";
+const TEAL   = "#7dd3fc";
 const BLUE   = "#5b9cf6";
 const ORANGE = "#fb8c42";
 const PURPLE = "#a78bfa";

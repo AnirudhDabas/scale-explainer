@@ -4,7 +4,11 @@ const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
-      colors: { teal: "rgb(110,210,200)" },
+      colors: {
+        blue: "#7dd3fc",
+        "blue-dim": "rgba(125,211,252,0.65)",
+        base: "#060a12",
+      },
       fontFamily: {
         display: ["Bricolage Grotesque", "sans-serif"],
         sans: ["DM Sans", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
