@@ -16,6 +16,8 @@ export default function SceneBackground() {
     const canvas = document.createElement("canvas");
     if (!canvas.getContext("webgl2") && !canvas.getContext("webgl")) return;
 
+    try {
+
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -75,8 +77,8 @@ export default function SceneBackground() {
     scene.add(floor);
 
     const grid = new THREE.GridHelper(12, 18, 0x7dd3fc, 0x7dd3fc);
-    (grid.material as THREE.Material).transparent = true;
-    (grid.material as THREE.Material).opacity = 0.14;
+    const gridMats = Array.isArray(grid.material) ? grid.material : [grid.material];
+    gridMats.forEach(m => { m.transparent = true; (m as THREE.LineBasicMaterial).opacity = 0.14; });
     scene.add(grid);
 
     const roomLine = new THREE.LineSegments(
@@ -313,6 +315,10 @@ export default function SceneBackground() {
       renderer.dispose();
       if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
     };
+    } catch (err) {
+      // 3D background is decorative — never crash the page
+      console.warn("SceneBackground:", err);
+    }
   }, []);
 
   return (
