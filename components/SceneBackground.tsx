@@ -23,7 +23,7 @@ export default function SceneBackground() {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.setSize(W, H);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.3;
+      renderer.toneMappingExposure = 0.9;
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -44,29 +44,28 @@ export default function SceneBackground() {
       ]).then(([{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }]) => {
         composer = new EffectComposer(renderer);
         composer.addPass(new RenderPass(scene, camera));
-        const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 1.6, 0.9, 0.22);
+        const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.65, 0.7, 0.35);
         composer.addPass(bloom);
         composer.addPass(new OutputPass());
       }).catch(() => {});
 
       // ── Lights ──────────────────────────────────────────────
-      scene.add(new THREE.AmbientLight(0xd0e8ff, 2.5));
+      scene.add(new THREE.AmbientLight(0xd0e8ff, 0.9));
 
-      const sun = new THREE.DirectionalLight(0xffffff, 4.0);
+      const sun = new THREE.DirectionalLight(0xffffff, 1.8);
       sun.position.set(4, 8, 5);
       sun.castShadow = true;
       scene.add(sun);
 
-      const tealFill = new THREE.DirectionalLight(0x7dd3fc, 3.5);
+      const tealFill = new THREE.DirectionalLight(0x7dd3fc, 1.2);
       tealFill.position.set(-5, 4, 2);
       scene.add(tealFill);
 
-      const warmBack = new THREE.DirectionalLight(0xfff0e0, 1.5);
+      const warmBack = new THREE.DirectionalLight(0xfff0e0, 0.7);
       warmBack.position.set(0, 3, -7);
       scene.add(warmBack);
 
-      // Moving point light for drama
-      const movingPt = new THREE.PointLight(0x7dd3fc, 8, 12);
+      const movingPt = new THREE.PointLight(0x7dd3fc, 3.5, 10);
       movingPt.position.set(0, 2, 0);
       scene.add(movingPt);
 
@@ -82,7 +81,7 @@ export default function SceneBackground() {
           metalness: 0.1,
         });
 
-      const solidMat = (color: number, metal = 0, rough = 0.65, emissInt = 0.12) =>
+      const solidMat = (color: number, metal = 0, rough = 0.65, emissInt = 0.06) =>
         new THREE.MeshStandardMaterial({
           color,
           metalness: metal,
@@ -114,7 +113,7 @@ export default function SceneBackground() {
       const gridMats = Array.isArray(grid.material) ? grid.material : [grid.material];
       gridMats.forEach(m => {
         m.transparent = true;
-        (m as THREE.LineBasicMaterial).opacity = 0.35;
+        (m as THREE.LineBasicMaterial).opacity = 0.18;
       });
       scene.add(grid);
 
@@ -296,7 +295,7 @@ export default function SceneBackground() {
 
       // Glowing screen (HIGH emissive for bloom)
       const scrn = mkBox(0.262, 0.164, 0.001,
-        emissiveMat(0x2060a0, 5.0)
+        emissiveMat(0x2060a0, 2.2)
       );
       scrn.position.copy(lid.position);
       scrn.rotation.copy(lid.rotation);
@@ -337,7 +336,7 @@ export default function SceneBackground() {
 
         // Very high emissive lenses = dramatic bloom glow
         const lens = mkCyl(0.029, 0.029, 0.004, 24,
-          emissiveMat(0x3399ff, 6.0, 0.85)
+          emissiveMat(0x3399ff, 2.8, 0.85)
         );
         lens.rotation.x = Math.PI / 2;
         lens.position.set(xOff, 0, -0.066);
@@ -377,7 +376,7 @@ export default function SceneBackground() {
       phone.add(mkBox(0.063, 0.137, 0.001, solidMat(0x0a0a0e, 0, 1, 0)));
 
       // High emissive screen
-      const pScr = mkBox(0.058, 0.128, 0.001, emissiveMat(0x1855aa, 5.0));
+      const pScr = mkBox(0.058, 0.128, 0.001, emissiveMat(0x1855aa, 2.2));
       pScr.position.z = 0.005;
       phone.add(pScr);
 
@@ -453,39 +452,61 @@ export default function SceneBackground() {
       scene.add(bb);
 
       // ── Animate ──────────────────────────────────────────────
+      // ── Scroll-driven camera waypoints ──────────────────────
+      // Each waypoint corresponds to a page section
+      const scrollWaypoints = [
+        { pos: new THREE.Vector3( 2.5, 2.8,  6.5), look: new THREE.Vector3( 0,   1.2,  0) },   // Hero
+        { pos: new THREE.Vector3(-1.5, 2.8,  5.5), look: new THREE.Vector3( 0,   1.5,  0) },   // Architecture
+        { pos: new THREE.Vector3( 3.0, 1.8,  4.5), look: new THREE.Vector3( 0,   1.0, -0.5) }, // Pipeline
+        { pos: new THREE.Vector3(-0.8, 1.5,  3.5), look: new THREE.Vector3(-1.6, 0.8,  0.3) }, // Binding — close to MacBook
+        { pos: new THREE.Vector3( 0.5, 5.5,  1.0), look: new THREE.Vector3( 0,   0.5,  0) },   // Fit engine — top-down
+        { pos: new THREE.Vector3( 2.5, 2.8,  6.5), look: new THREE.Vector3( 0,   1.2,  0) },   // Decisions — back to start
+      ];
+
       let t = 0;
       let animId: number;
       const macBaseY   = mac.position.y;
       const questBaseY = quest.position.y;
       const phoneBaseY = phone.position.y;
 
-      const cameraTarget = new THREE.Vector3(0, 1.2, 0);
-      const currentLookAt = new THREE.Vector3(0, 1.2, 0);
+      const camPos     = new THREE.Vector3().copy(scrollWaypoints[0].pos);
+      const camLook    = new THREE.Vector3().copy(scrollWaypoints[0].look);
+      const targetPos  = new THREE.Vector3();
+      const targetLook = new THREE.Vector3();
 
       const animate = () => {
         animId = requestAnimationFrame(animate);
         t += 0.004;
 
-        // ── Camera follows spline ──────────────────────────────
-        const pathT = (t * 0.012) % 1;
-        const pos = camPath.getPointAt(pathT);
-        camera.position.lerp(pos, 0.02);
-        // Look at has subtle drift
-        cameraTarget.set(
-          Math.sin(t * 0.15) * 0.5,
-          1.2 + Math.sin(t * 0.08) * 0.2,
-          Math.sin(t * 0.12) * 0.3
-        );
-        currentLookAt.lerp(cameraTarget, 0.03);
-        camera.lookAt(currentLookAt);
+        // ── Scroll → camera waypoint interpolation ────────────
+        const scrollPct = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
+        const s = Math.min(1, Math.max(0, scrollPct));
+        const segCount = scrollWaypoints.length - 1;
+        const segIdx = Math.min(Math.floor(s * segCount), segCount - 1);
+        const segT   = (s * segCount) - segIdx;
+        const wA = scrollWaypoints[segIdx];
+        const wB = scrollWaypoints[Math.min(segIdx + 1, segCount)];
+
+        targetPos.lerpVectors(wA.pos, wB.pos, segT);
+        targetLook.lerpVectors(wA.look, wB.look, segT);
+
+        // Blend with subtle idle drift (weaker at higher scroll)
+        const driftAmt = 0.25 * (1 - s * 0.5);
+        targetPos.x += Math.sin(t * 0.12) * driftAmt;
+        targetPos.y += Math.sin(t * 0.08) * driftAmt * 0.5;
+
+        camPos.lerp(targetPos, 0.028);
+        camLook.lerp(targetLook, 0.028);
+        camera.position.copy(camPos);
+        camera.lookAt(camLook);
 
         // ── Moving point light orbits the MacBook ─────────────
         movingPt.position.set(
-          mac.position.x + Math.sin(t * 0.9) * 1.5,
-          mac.position.y + 1.5 + Math.sin(t * 0.6) * 0.5,
-          mac.position.z + Math.cos(t * 0.9) * 1.5
+          mac.position.x + Math.sin(t * 0.9) * 1.2,
+          mac.position.y + 1.2 + Math.sin(t * 0.6) * 0.4,
+          mac.position.z + Math.cos(t * 0.9) * 1.2
         );
-        movingPt.intensity = 5 + Math.sin(t * 1.8) * 1.5;
+        movingPt.intensity = 2.5 + Math.sin(t * 1.8) * 0.8;
 
         // ── Scan beam sweeps ───────────────────────────────────
         const scanX = Math.sin(t * 0.5) * (ROOM.w / 2);

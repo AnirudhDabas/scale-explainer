@@ -102,7 +102,7 @@ export default function Page() {
             </p>
           </ScrollReveal>
           <ScrollReveal y={24} delay={0.05}>
-            <div style={{ background: "#0d1120", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12 }} className="p-4 sm:p-6">
+            <div style={{ background: "rgba(11,15,28,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
               <ArchitectureDiagram />
             </div>
           </ScrollReveal>
@@ -123,7 +123,7 @@ export default function Page() {
             </p>
           </ScrollReveal>
           <ScrollReveal y={24} delay={0.05}>
-            <div style={{ background: "#0d1120", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12 }} className="p-4 sm:p-6">
+            <div style={{ background: "rgba(11,15,28,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
               <PipelineTrace />
             </div>
           </ScrollReveal>
@@ -165,7 +165,7 @@ export default function Page() {
             </blockquote>
           </ScrollReveal>
           <ScrollReveal y={24} delay={0.05}>
-            <div style={{ background: "#0d1120", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12 }} className="p-4 sm:p-6">
+            <div style={{ background: "rgba(11,15,28,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
               <ScaleBinding />
             </div>
           </ScrollReveal>
@@ -187,7 +187,7 @@ export default function Page() {
             <p className="caption mb-10">{DEMO_ROOM.label}</p>
           </ScrollReveal>
           <ScrollReveal y={24} delay={0.05}>
-            <div style={{ background: "#0d1120", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12 }} className="p-4 sm:p-6">
+            <div style={{ background: "rgba(11,15,28,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
               <FitEngine />
             </div>
           </ScrollReveal>
