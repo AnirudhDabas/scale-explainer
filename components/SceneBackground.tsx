@@ -26,7 +26,7 @@ export default function SceneBackground() {
       renderer.toneMappingExposure = 1.3;
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.shadowMap.type = THREE.PCFShadowMap;
       el.appendChild(renderer.domElement);
 
       const scene = new THREE.Scene();
@@ -44,25 +44,29 @@ export default function SceneBackground() {
       ]).then(([{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }]) => {
         composer = new EffectComposer(renderer);
         composer.addPass(new RenderPass(scene, camera));
-        const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 1.4, 0.8, 0.28);
+        const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 1.6, 0.9, 0.22);
         composer.addPass(bloom);
         composer.addPass(new OutputPass());
       }).catch(() => {});
 
       // ── Lights ──────────────────────────────────────────────
-      scene.add(new THREE.AmbientLight(0x0a1828, 3.0));
+      scene.add(new THREE.AmbientLight(0xd0e8ff, 2.5));
 
-      const sun = new THREE.DirectionalLight(0xffffff, 2.5);
+      const sun = new THREE.DirectionalLight(0xffffff, 4.0);
       sun.position.set(4, 8, 5);
       sun.castShadow = true;
       scene.add(sun);
 
-      const tealFill = new THREE.DirectionalLight(0x7dd3fc, 1.8);
+      const tealFill = new THREE.DirectionalLight(0x7dd3fc, 3.5);
       tealFill.position.set(-5, 4, 2);
       scene.add(tealFill);
 
+      const warmBack = new THREE.DirectionalLight(0xfff0e0, 1.5);
+      warmBack.position.set(0, 3, -7);
+      scene.add(warmBack);
+
       // Moving point light for drama
-      const movingPt = new THREE.PointLight(0x7dd3fc, 6, 10);
+      const movingPt = new THREE.PointLight(0x7dd3fc, 8, 12);
       movingPt.position.set(0, 2, 0);
       scene.add(movingPt);
 
@@ -78,7 +82,7 @@ export default function SceneBackground() {
           metalness: 0.1,
         });
 
-      const solidMat = (color: number, metal = 0, rough = 0.65, emissInt = 0.04) =>
+      const solidMat = (color: number, metal = 0, rough = 0.65, emissInt = 0.12) =>
         new THREE.MeshStandardMaterial({
           color,
           metalness: metal,
@@ -110,7 +114,7 @@ export default function SceneBackground() {
       const gridMats = Array.isArray(grid.material) ? grid.material : [grid.material];
       gridMats.forEach(m => {
         m.transparent = true;
-        (m as THREE.LineBasicMaterial).opacity = 0.22;
+        (m as THREE.LineBasicMaterial).opacity = 0.35;
       });
       scene.add(grid);
 
@@ -246,20 +250,21 @@ export default function SceneBackground() {
       ptGeo.setAttribute("position", new THREE.BufferAttribute(ptPositions, 3));
       const ptOpacity = new THREE.BufferAttribute(new Float32Array(PT_COUNT), 1);
       ptGeo.setAttribute("opacity", ptOpacity);
-      ptGeo.setAttribute("color", new THREE.BufferAttribute(ptColors, 3));
+      // Use "ptColor" — "color" is reserved by Three.js when vertexColors is set
+      ptGeo.setAttribute("ptColor", new THREE.BufferAttribute(ptColors, 3));
 
       const ptMat = new THREE.ShaderMaterial({
         uniforms: {},
         vertexShader: `
           attribute float opacity;
-          attribute vec3 color;
+          attribute vec3 ptColor;
           varying float vOpacity;
           varying vec3 vColor;
           void main() {
             vOpacity = opacity;
-            vColor = color;
+            vColor = ptColor;
             vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-            gl_PointSize = clamp(280.0 / -mvPos.z, 1.5, 5.0);
+            gl_PointSize = clamp(300.0 / -mvPos.z, 1.5, 6.0);
             gl_Position = projectionMatrix * mvPos;
           }
         `,
@@ -269,13 +274,12 @@ export default function SceneBackground() {
           void main() {
             float d = length(gl_PointCoord - vec2(0.5));
             if (d > 0.5) discard;
-            float alpha = (1.0 - d * 2.0) * vOpacity;
+            float alpha = (1.0 - d * 1.8) * vOpacity;
             gl_FragColor = vec4(vColor, alpha);
           }
         `,
         transparent: true,
         depthWrite: false,
-        vertexColors: true,
       });
       const points = new THREE.Points(ptGeo, ptMat);
       scene.add(points);
@@ -292,7 +296,7 @@ export default function SceneBackground() {
 
       // Glowing screen (HIGH emissive for bloom)
       const scrn = mkBox(0.262, 0.164, 0.001,
-        emissiveMat(0x2060a0, 3.5) // HIGH emissiveIntensity = bloom!
+        emissiveMat(0x2060a0, 5.0)
       );
       scrn.position.copy(lid.position);
       scrn.rotation.copy(lid.rotation);
@@ -333,7 +337,7 @@ export default function SceneBackground() {
 
         // Very high emissive lenses = dramatic bloom glow
         const lens = mkCyl(0.029, 0.029, 0.004, 24,
-          emissiveMat(0x3399ff, 4.0, 0.85)
+          emissiveMat(0x3399ff, 6.0, 0.85)
         );
         lens.rotation.x = Math.PI / 2;
         lens.position.set(xOff, 0, -0.066);
@@ -373,7 +377,7 @@ export default function SceneBackground() {
       phone.add(mkBox(0.063, 0.137, 0.001, solidMat(0x0a0a0e, 0, 1, 0)));
 
       // High emissive screen
-      const pScr = mkBox(0.058, 0.128, 0.001, emissiveMat(0x1855aa, 3.0));
+      const pScr = mkBox(0.058, 0.128, 0.001, emissiveMat(0x1855aa, 5.0));
       pScr.position.z = 0.005;
       phone.add(pScr);
 
