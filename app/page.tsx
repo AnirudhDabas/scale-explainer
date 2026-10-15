@@ -10,6 +10,7 @@ import {
   ScrollReveal,
   HeroText,
   Marquee,
+  GithubCard,
 } from "@/components/ClientSections";
 import NavLinks from "@/components/NavLinks";
 import FooterLink from "@/components/FooterLink";
@@ -238,6 +239,20 @@ export default function Page() {
               </ScrollReveal>
             ))}
           </div>
+        </section>
+
+        <div className="divider mt-16" />
+
+        {/* ── Source ── */}
+        <section className="pt-16 pb-16" aria-label="Source code">
+          <ScrollReveal>
+            <p className="body mb-6" style={{ maxWidth: 520 }}>
+              Built in 36 hours. Full source on GitHub.
+            </p>
+            <div style={{ maxWidth: 640 }}>
+              <GithubCard />
+            </div>
+          </ScrollReveal>
         </section>
 
       </main>

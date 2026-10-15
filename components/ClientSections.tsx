@@ -52,6 +52,11 @@ export const LoadingScreen = dynamic(
 );
 
 export { default as Reveal } from "@/components/Reveal";
+export const GithubCard = dynamic(
+  () => import("@/components/GithubCard"),
+  { ssr: false }
+);
+
 export const ScrollReveal = dynamic(
   () => import("@/components/ScrollReveal"),
   { ssr: false }
