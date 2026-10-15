@@ -243,12 +243,20 @@ export default function Page() {
 
         <div className="divider mt-16" />
 
-        {/* ── Source ── */}
+        {/* ── Source + team ── */}
         <section className="pt-16 pb-16" aria-label="Source code">
           <ScrollReveal>
-            <p className="body mb-6" style={{ maxWidth: 520 }}>
-              Built in 36 hours. Full source on GitHub.
-            </p>
+            {/* Team names */}
+            <div className="flex flex-wrap items-center gap-3 mb-8">
+              <span style={{ fontSize: 13, color: "rgba(240,242,250,0.4)" }}>Built by</span>
+              <FooterLink href="https://ca.linkedin.com/in/justin-tingxuan-wang">Justin</FooterLink>
+              <span style={{ color: "rgba(240,242,250,0.2)", fontSize: 13 }}>·</span>
+              <FooterLink href="https://www.linkedin.com/in/anirudh-dabas-ab3998229/">Ani</FooterLink>
+              <span style={{ color: "rgba(240,242,250,0.2)", fontSize: 13 }}>·</span>
+              <FooterLink href="https://www.linkedin.com/in/thomas-zhang-022a9b21b/">Thomas</FooterLink>
+              <span style={{ color: "rgba(240,242,250,0.2)", fontSize: 13 }}>·</span>
+              <FooterLink href="https://www.linkedin.com/in/pauligwe">Paul</FooterLink>
+            </div>
             <div style={{ maxWidth: 640 }}>
               <GithubCard />
             </div>
@@ -260,20 +268,10 @@ export default function Page() {
       {/* ── Footer ── */}
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "#07090f" }}>
         <div
-          className="max-w-5xl mx-auto px-6 sm:px-10 py-5 flex flex-col sm:flex-row items-start sm:items-center gap-2 justify-between"
-          style={{ fontSize: 12, color: "rgba(240,242,250,0.28)" }}
+          className="max-w-5xl mx-auto px-6 sm:px-10 py-4"
+          style={{ fontSize: 12, color: "rgba(240,242,250,0.22)" }}
         >
-          <span>
-            <span style={{ color: "rgba(240,242,250,0.55)", fontWeight: 600 }}>Scale</span>
-            {" — "}
-            <FooterLink href="https://ca.linkedin.com/in/justin-tingxuan-wang">Justin</FooterLink>
-            {", "}
-            <FooterLink href="https://www.linkedin.com/in/anirudh-dabas-ab3998229/">Ani</FooterLink>
-            {", "}
-            <FooterLink href="https://www.linkedin.com/in/thomas-zhang-022a9b21b/">Thomas</FooterLink>
-            {", "}
-            <FooterLink href="https://www.linkedin.com/in/pauligwe">Paul</FooterLink>
-          </span>
+          Scale
         </div>
       </footer>
     </>

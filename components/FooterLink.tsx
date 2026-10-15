@@ -17,14 +17,18 @@ export default function FooterLink({
       {children}
       <style>{`
         .footer-person-link {
-          color: rgba(238,240,246,0.6);
+          font-family: 'Bricolage Grotesque', sans-serif;
+          font-size: 15px;
+          font-weight: 600;
+          color: rgba(240,242,250,0.88);
           text-decoration: none;
-          border-bottom: 1px solid rgba(238,240,246,0.18);
+          border-bottom: 1px solid rgba(240,242,250,0.2);
+          padding-bottom: 1px;
           transition: color 0.15s ease, border-color 0.15s ease;
         }
         .footer-person-link:hover {
-          color: rgb(125,211,252);
-          border-bottom-color: rgba(125,211,252,0.45);
+          color: #7dd3fc;
+          border-bottom-color: rgba(125,211,252,0.5);
         }
       `}</style>
     </a>
