@@ -88,34 +88,34 @@ const FLOWS: Record<string, FlowDef> = {
   capture: {
     label: "Capture object",
     nodes: ["iphone","workers","d1r2vec","gen","baseten","durable","quest"],
-    color: "#7dd3fc",
+    color: "#b7c9a8",
     connections: ["cf-iphone-workers","cf-workers-d1r2vec","cf-workers-gen","cf-gen-baseten","cf-workers-durable","cf-durable-quest"],
   },
   search: {
     label: "Search library",
     nodes: ["quest","workers","d1r2vec"],
-    color: "#5b9cf6",
+    color: "#9bb7c9",
     connections: ["cf-quest-workers","cf-workers-d1r2vec"],
   },
   arrange: {
     label: "Arrange room",
     nodes: ["quest","agent","fit","workers","durable"],
-    color: "#a78bfa",
+    color: "#bab1ce",
     connections: ["cf-quest-workers","cf-workers-agent","cf-agent-fit","cf-workers-durable","cf-durable-quest"],
   },
   find: {
     label: "Find in store",
     nodes: ["quest","workers","ingest","gen","baseten"],
-    color: "#fb8c42",
+    color: "#dbb58d",
     connections: ["cf-quest-workers","cf-workers-ingest","cf-workers-gen","cf-gen-baseten"],
   },
 };
 
-const TEAL   = "#7dd3fc";
-const BLUE   = "#5b9cf6";
-const ORANGE = "#fb8c42";
-const PURPLE = "#a78bfa";
-const ARROW  = "rgba(240,242,250,0.3)";
+const TEAL   = "#b7c9a8";
+const BLUE   = "#9bb7c9";
+const ORANGE = "#dbb58d";
+const PURPLE = "#bab1ce";
+const ARROW  = "rgba(242,238,230,0.3)";
 
 const PACKET_OFFSETS = [0, 0.45] as const;
 
@@ -167,14 +167,14 @@ export default function ArchitectureDiagram() {
       </div>
 
       {/* Diagram */}
-      <div className="overflow-x-auto rounded-xl" style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <div style={{ minWidth: 680 }}>
+      <div className="diagram-scroll overflow-x-auto rounded-xl" tabIndex={0} role="region" aria-label="Scrollable architecture diagram" style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ minWidth: 960 }}>
           <svg
             viewBox="0 0 960 430"
             width="100%"
-            style={{ display: "block", minWidth: 680 }}
+            style={{ display: "block", minWidth: 960 }}
             aria-label="Scale system architecture diagram"
-            role="img"
+            role="group"
           >
             <defs>
               <pattern id="adot-grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
@@ -212,36 +212,36 @@ export default function ArchitectureDiagram() {
             <rect x="0" y="0" width="960" height="430" fill="url(#adot-grid)" />
 
             {/* Zone backgrounds */}
-            <rect x="10"  y="10" width="145" height="410" rx="10" fill="rgba(15,196,184,0.03)"  stroke="rgba(15,196,184,0.1)"  strokeWidth="1" />
-            <rect x="163" y="10" width="438" height="410" rx="10" fill="rgba(251,140,66,0.03)"  stroke="rgba(251,140,66,0.1)"  strokeWidth="1" />
-            <rect x="609" y="10" width="341" height="195" rx="10" fill="rgba(91,156,246,0.03)"  stroke="rgba(91,156,246,0.1)"  strokeWidth="1" />
-            <rect x="609" y="213" width="341" height="207" rx="10" fill="rgba(167,139,250,0.04)" stroke="rgba(167,139,250,0.1)" strokeWidth="1" />
+            <rect x="10"  y="10" width="145" height="410" rx="10" fill="rgba(183,201,168,0.03)"  stroke="rgba(183,201,168,0.1)"  strokeWidth="1" />
+            <rect x="163" y="10" width="438" height="410" rx="10" fill="rgba(219,181,141,0.03)"  stroke="rgba(219,181,141,0.1)"  strokeWidth="1" />
+            <rect x="609" y="10" width="341" height="245" rx="10" fill="rgba(155,183,201,0.03)"  stroke="rgba(155,183,201,0.1)"  strokeWidth="1" />
+            <rect x="609" y="263" width="341" height="157" rx="10" fill="rgba(186,177,206,0.04)" stroke="rgba(186,177,206,0.1)" strokeWidth="1" />
 
             {/* Zone labels */}
-            <text x="82"  y="28" fontSize="8" fill={TEAL}   fontWeight="700" textAnchor="middle" letterSpacing="1.5" opacity="0.6">DEVICES</text>
-            <text x="382" y="28" fontSize="8" fill={ORANGE} fontWeight="700" textAnchor="middle" letterSpacing="1.5" opacity="0.6">CLOUDFLARE</text>
-            <text x="779" y="28" fontSize="8" fill={BLUE}   fontWeight="700" textAnchor="middle" letterSpacing="1.5" opacity="0.6">LOCAL COMPUTE (DOCKER)</text>
-            <text x="779" y="228" fontSize="8" fill={PURPLE} fontWeight="700" textAnchor="middle" letterSpacing="1.5" opacity="0.6">EXTERNAL</text>
+            <text x="82"  y="30" fontSize="11" fill={TEAL}   fontWeight="700" textAnchor="middle" letterSpacing="1.5" opacity="1">DEVICES</text>
+            <text x="382" y="30" fontSize="11" fill={ORANGE} fontWeight="700" textAnchor="middle" letterSpacing="1.5" opacity="1">CLOUDFLARE</text>
+            <text x="779" y="30" fontSize="11" fill={BLUE}   fontWeight="700" textAnchor="middle" letterSpacing="1.5" opacity="1">LOCAL COMPUTE (DOCKER)</text>
+            <text x="779" y="283" fontSize="11" fill={PURPLE} fontWeight="700" textAnchor="middle" letterSpacing="1.5" opacity="1">EXTERNAL</text>
 
-            {/* Connection paths — ids used by animateMotion mpath */}
-            <path id="cf-iphone-workers"  d="M147 120 H171"                            stroke={TEAL}   strokeWidth="2"   fill="none" markerEnd="url(#m-teal)"   opacity={dim(["iphone","workers"])} />
-            <path id="cf-durable-quest"   d="M309 225 H155 V300 H147"                  stroke={ARROW}  strokeWidth="1.5" fill="none" strokeDasharray="4 3" markerEnd="url(#m-arrow)" opacity={dim(["durable","quest"])} />
-            <path id="cf-quest-workers"   d="M147 300 H163 V120 H171"                  stroke={TEAL}   strokeWidth="1.5" fill="none" markerEnd="url(#m-teal)"   opacity={dim(["quest","workers"])} />
-            <path id="cf-workers-d1r2vec" d="M240 115 V190"                             stroke={ORANGE} strokeWidth="1.5" fill="none" markerEnd="url(#m-orange)" opacity={dim(["workers","d1r2vec"])} />
-            <path id="cf-workers-durable" d="M340 115 V190"                             stroke={ORANGE} strokeWidth="1.5" fill="none" markerEnd="url(#m-orange)" opacity={dim(["workers","durable"])} />
-            <path id="cf-workers-agent"   d="M361 80 H449"                              stroke={ORANGE} strokeWidth="1.5" fill="none" markerEnd="url(#m-orange)" opacity={dim(["workers","agent"])} />
-            <path id="cf-agent-fit"       d="M594 90 H617"                              stroke={BLUE}   strokeWidth="1.5" fill="none" markerEnd="url(#m-blue)"   opacity={dim(["agent","fit"])} />
-            <path id="cf-workers-gen"     d="M594 70 H617"                              stroke={BLUE}   strokeWidth="2"   fill="none" markerEnd="url(#m-blue)"   opacity={dim(["workers","gen","ingest"])} />
-            <path id="cf-workers-ingest"  d="M594 55 H765"                              stroke={BLUE}   strokeWidth="1.5" fill="none" markerEnd="url(#m-blue)"   opacity={dim(["workers","ingest"])} />
-            <path id="cf-gen-baseten"     d="M686 93 V228"                              stroke={PURPLE} strokeWidth="1.5" fill="none" strokeDasharray="5 3" markerEnd="url(#m-purple)" opacity={dim(["gen","baseten"])} />
-            <text x="605" y="62" fontSize="7" fill={BLUE} textAnchor="middle" fontWeight="600" opacity={dim(["workers","gen","ingest"])}>TUNNEL</text>
+            {/* Connection paths. ids used by animateMotion mpath */}
+            <path id="cf-iphone-workers"  d="M147 120 H159 V100 H171"                            stroke={TEAL}   strokeWidth="2"   fill="none" markerEnd="url(#m-teal)"   opacity={dim(["iphone","workers"])} />
+            <path id="cf-durable-quest"   d="M374 305 V350 H155 V300 H147"                  stroke={ARROW}  strokeWidth="1.5" fill="none" strokeDasharray="4 3" markerEnd="url(#m-arrow)" opacity={dim(["durable","quest"])} />
+            <path id="cf-quest-workers"   d="M147 300 H163 V100 H171"                  stroke={TEAL}   strokeWidth="1.5" fill="none" markerEnd="url(#m-teal)"   opacity={dim(["quest","workers"])} />
+            <path id="cf-workers-d1r2vec" d="M240 140 V225"                             stroke={ORANGE} strokeWidth="1.5" fill="none" markerEnd="url(#m-orange)" opacity={dim(["workers","d1r2vec"])} />
+            <path id="cf-workers-durable" d="M340 140 V225"                             stroke={ORANGE} strokeWidth="1.5" fill="none" markerEnd="url(#m-orange)" opacity={dim(["workers","durable"])} />
+            <path id="cf-workers-agent"   d="M361 100 H449"                              stroke={ORANGE} strokeWidth="1.5" fill="none" markerEnd="url(#m-orange)" opacity={dim(["workers","agent"])} />
+            <path id="cf-agent-fit"       d="M521 140 V200 H617"                              stroke={BLUE}   strokeWidth="1.5" fill="none" markerEnd="url(#m-blue)"   opacity={dim(["agent","fit"])} />
+            <path id="cf-workers-gen"     d="M361 120 H401 V170 H605 V100 H617"                              stroke={BLUE}   strokeWidth="2"   fill="none" markerEnd="url(#m-blue)"   opacity={dim(["workers","gen","ingest"])} />
+            <path id="cf-workers-ingest"  d="M361 130 H445 V250 H852 V140"                              stroke={BLUE}   strokeWidth="1.5" fill="none" markerEnd="url(#m-blue)"   opacity={dim(["workers","ingest"])} />
+            <path id="cf-gen-baseten"     d="M686 140 H757 V260 H930 V292 H779 V300"                              stroke={PURPLE} strokeWidth="1.5" fill="none" strokeDasharray="5 3" markerEnd="url(#m-purple)" opacity={dim(["gen","baseten"])} />
+            <text x="535" y="162" fontSize="11" fill={BLUE} textAnchor="middle" fontWeight="600" opacity={dim(["workers","gen","ingest"])}>TUNNEL</text>
 
-            {/* Animated data packets — glowing dots traveling along active connections */}
+            {/* Animated data packets. glowing dots traveling along active connections */}
             {flowDef.connections.map((connId) =>
               activeConnections.has(connId)
                 ? PACKET_OFFSETS.map((offset, pi) => (
-                    <g key={`${connId}-${pi}`} filter="url(#ad-packet-glow)">
-                      <circle r="4" fill={flowDef.color} opacity="0.95">
+                    <g key={`${connId}-${pi}`} >
+                      <circle r="2.5" fill={flowDef.color} opacity="0.95">
                         <animateMotion
                           dur={`${1.6 + pi * 0.3}s`}
                           repeatCount="indefinite"
@@ -268,18 +268,18 @@ export default function ArchitectureDiagram() {
             {/* Nodes */}
             <ArchNode x={18}  y={85}  w={129} h={70}  label="iPhone"         sub1="Expo"           sub2="Swift modules"         acc={TEAL}   sel={selectedNode==="iphone"}   act={on("iphone")}   click={() => click("iphone")} />
             <ArchNode x={18}  y={265} w={129} h={70}  label="Meta Quest"     sub1="WebXR"          sub2="three.js + Rapier"     acc={TEAL}   sel={selectedNode==="quest"}    act={on("quest")}    click={() => click("quest")} />
-            <ArchNode x={171} y={45}  w={190} h={70}  label="Workers"        sub1="front door"     sub2="every /v1 route"       acc={ORANGE} sel={selectedNode==="workers"}  act={on("workers")}  click={() => click("workers")} />
-            <ArchNode x={171} y={190} w={130} h={70}  label="D1 · R2 · Vec"  sub1="rows"           sub2="blobs · vectors"       acc={ORANGE} sel={selectedNode==="d1r2vec"} act={on("d1r2vec")}  click={() => click("d1r2vec")} />
-            <ArchNode x={309} y={190} w={130} h={70}  label="Durable Object" sub1="SSE"            sub2="fan-out"               acc={ORANGE} sel={selectedNode==="durable"}  act={on("durable")}  click={() => click("durable")} />
-            <ArchNode x={449} y={45}  w={145} h={70}  label="designer-agent" sub1="Worker"         sub2="intents → constraints" acc={ORANGE} sel={selectedNode==="agent"}   act={on("agent")}    click={() => click("agent")} />
-            <ArchNode x={617} y={18}  w={138} h={75}  label="gen adapter"    sub1="Docker"         sub2="scale binding"         acc={BLUE}   sel={selectedNode==="gen"}      act={on("gen")}      click={() => click("gen")} />
-            <ArchNode x={617} y={110} w={138} h={65}  label="fit service"    sub1="Docker"         sub2="OR-Tools CP-SAT"       acc={BLUE}   sel={selectedNode==="fit"}      act={on("fit")}      click={() => click("fit")} />
-            <ArchNode x={765} y={18}  w={175} h={75}  label="ingest service" sub1="Docker"         sub2="Browserbase + LLM"     acc={BLUE}   sel={selectedNode==="ingest"}   act={on("ingest")}   click={() => click("ingest")} />
-            <ArchNode x={617} y={228} w={333} h={105} label="Baseten"        sub1="Stable Fast 3D" sub2="L4:4x16 GPU"           acc={PURPLE} sel={selectedNode==="baseten"}  act={on("baseten")}  click={() => click("baseten")} />
+            <ArchNode x={171} y={60}  w={190} h={80}  label="Workers"        sub1="front door"     sub2="every /v1 route"       acc={ORANGE} sel={selectedNode==="workers"}  act={on("workers")}  click={() => click("workers")} />
+            <ArchNode x={171} y={225} w={130} h={80}  label="D1 · R2 · Vec"  sub1="rows"           sub2="blobs · vectors"       acc={ORANGE} sel={selectedNode==="d1r2vec"} act={on("d1r2vec")}  click={() => click("d1r2vec")} />
+            <ArchNode x={309} y={225} w={130} h={80}  label="Durable Object" sub1="SSE"            sub2="fan-out"               acc={ORANGE} sel={selectedNode==="durable"}  act={on("durable")}  click={() => click("durable")} />
+            <ArchNode x={449} y={60}  w={145} h={80}  label="designer-agent" sub1="Worker"         sub2="intents → constraints" acc={ORANGE} sel={selectedNode==="agent"}   act={on("agent")}    click={() => click("agent")} />
+            <ArchNode x={617} y={60}  w={138} h={80}  label="gen adapter"    sub1="Docker"         sub2="scale binding"         acc={BLUE}   sel={selectedNode==="gen"}      act={on("gen")}      click={() => click("gen")} />
+            <ArchNode x={617} y={160} w={138} h={80}  label="fit service"    sub1="Docker"         sub2="OR-Tools CP-SAT"       acc={BLUE}   sel={selectedNode==="fit"}      act={on("fit")}      click={() => click("fit")} />
+            <ArchNode x={765} y={60}  w={175} h={80}  label="ingest service" sub1="Docker"         sub2="Browserbase + LLM"     acc={BLUE}   sel={selectedNode==="ingest"}   act={on("ingest")}   click={() => click("ingest")} />
+            <ArchNode x={617} y={300} w={323} h={85} label="Baseten"        sub1="Stable Fast 3D" sub2="L4:4x16 GPU"           acc={PURPLE} sel={selectedNode==="baseten"}  act={on("baseten")}  click={() => click("baseten")} />
           </svg>
         </div>
       </div>
-      <p className="text-center mt-2" style={{ fontSize: 11, color: "rgba(240,242,250,0.2)" }}>
+      <p className="text-center mt-2" style={{ fontSize: 11, color: "#bec7be" }}>
         Select any component for details · scroll right on narrow screens
       </p>
 
@@ -293,22 +293,22 @@ export default function ArchitectureDiagram() {
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="mt-4 p-4 sm:p-5 rounded-xl relative"
-            style={{ background: "rgba(11,15,28,0.9)", border: `1px solid ${flowColor}28` }}
+            style={{ background: "rgba(22,28,24,0.9)", border: `1px solid ${flowColor}28` }}
           >
             <button
               onClick={() => setSelectedNode(null)}
               className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-lg focus-ring transition-colors text-lg"
-              style={{ color: "rgba(240,242,250,0.62)", background: "rgba(255,255,255,0.05)" }}
+              style={{ color: "#bec7be", background: "rgba(255,255,255,0.05)" }}
               aria-label="Close"
             >
               ×
             </button>
             <p className="text-[10px] font-semibold tracking-widest uppercase mb-1.5" style={{ color: flowColor }}>Component</p>
-            <h3 className="text-base font-bold mb-2" style={{ color: "#f0f4ff" }}>{detail.title}</h3>
-            <p className="text-sm leading-relaxed mb-3" style={{ color: "rgba(240,242,250,0.5)" }}>{detail.role}</p>
+            <h3 className="text-base font-bold mb-2 pr-8" style={{ color: "#f2eee6" }}>{detail.title}</h3>
+            <p className="text-sm leading-relaxed mb-3" style={{ color: "#bec7be" }}>{detail.role}</p>
             <div className="text-xs space-y-1.5 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-              <p style={{ color: "rgba(240,242,250,0.62)" }}><span className="font-semibold" style={{ color: "rgba(240,242,250,0.5)" }}>Tech:</span> {detail.tech}</p>
-              <p style={{ color: "rgba(240,242,250,0.50)" }}><span className="font-semibold" style={{ color: "rgba(240,242,250,0.62)" }}>Source:</span> {detail.source}</p>
+              <p style={{ color: "#bec7be" }}><span className="font-semibold" style={{ color: "#bec7be" }}>Tech:</span> {detail.tech}</p>
+              <p style={{ color: "#bec7be" }}><span className="font-semibold" style={{ color: "#bec7be" }}>Source:</span> {detail.source}</p>
             </div>
           </motion.div>
         )}
@@ -329,14 +329,17 @@ function ArchNode({
   return (
     <g
       onClick={click}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && click()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); click(); }
+      }}
+      className="architecture-node"
       tabIndex={0}
       role="button"
       aria-pressed={sel}
       aria-label={`${label}: click for details`}
       style={{
         cursor: "pointer",
-        opacity: act ? 1 : 0.13,
+        opacity: 1,
         transition: "opacity 0.22s ease",
       }}
     >
@@ -353,13 +356,13 @@ function ArchNode({
           stroke={acc}
           strokeWidth="1"
           opacity="0.18"
-          filter={`url(#ad-glow-${acc === "#7dd3fc" ? "teal" : acc === "#fb8c42" ? "orange" : acc === "#5b9cf6" ? "blue" : "purple"})`}
         />
       )}
       {/* Box */}
       <rect
         x={x} y={y} width={w} height={h} rx={10}
-        fill={sel ? `${acc}12` : act ? `${acc}06` : "rgba(255,255,255,0.04)"}
+        className="node-box"
+        fill="#1b211d"
         stroke={sel ? acc : act ? `${acc}55` : "rgba(255,255,255,0.1)"}
         strokeWidth={sel ? 1.5 : act ? 1 : 1}
         style={{ transition: "all 0.18s ease" }}
@@ -367,7 +370,7 @@ function ArchNode({
       {/* Accent top bar when selected */}
       {sel && <rect x={x + 1} y={y + 1} width={w - 2} height={3} rx={4} fill={acc} opacity="0.7" />}
 
-      {/* Pulsing status dot — top-left corner of node */}
+      {/* Pulsing status dot. top-left corner of node */}
       <circle
         cx={x + 11}
         cy={y + 11}
@@ -386,12 +389,12 @@ function ArchNode({
       </circle>
 
       {/* Label */}
-      <text x={mid} y={y + 30} fontSize="12" fill={sel ? acc : "rgba(240,242,250,0.85)"} fontWeight="700" textAnchor="middle">{label}</text>
+      <text x={mid} y={y + 30} fontSize="13" fill={sel ? acc : "rgba(242,238,230,0.85)"} fontWeight="700" textAnchor="middle">{label}</text>
       {/* Sub line 1 */}
-      <text x={mid} y={y + 45} fontSize="9" fill="rgba(240,242,250,0.62)" textAnchor="middle">{sub1}</text>
-      {/* Sub line 2 — only if node is tall enough */}
+      <text x={mid} y={y + 45} fontSize="11" fill="#bec7be" textAnchor="middle">{sub1}</text>
+      {/* Sub line 2. only if node is tall enough */}
       {h >= 70 && (
-        <text x={mid} y={y + 58} fontSize="9" fill="rgba(240,242,250,0.50)" textAnchor="middle">{sub2}</text>
+        <text x={mid} y={y + 58} fontSize="11" fill="#bec7be" textAnchor="middle">{sub2}</text>
       )}
     </g>
   );

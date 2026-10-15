@@ -3,9 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { PIPELINE_STEPS } from "@/data/content";
+import { useMotionPreferences } from "./MotionPreferences";
 
-// ── Spinning SF3D canvas — a rotating wireframe cube showing ±1 normalised output ──
+// ── Spinning SF3D canvas. a rotating wireframe cube showing ±1 normalised output ──
 function SpinningSF3D({ active }: { active: boolean }) {
+  const { enabled } = useMotionPreferences();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const angleRef  = useRef(0);
   const rafRef    = useRef<number | null>(null);
@@ -66,7 +68,7 @@ function SpinningSF3D({ active }: { active: boolean }) {
       ctx.beginPath();
       ctx.moveTo(pts[a].px, pts[a].py);
       ctx.lineTo(pts[b].px, pts[b].py);
-      ctx.strokeStyle = `rgba(167,139,250,${Math.min(0.9, alpha)})`;
+      ctx.strokeStyle = `rgba(186,177,206,${Math.min(0.9, alpha)})`;
       ctx.lineWidth = 1.5;
       ctx.stroke();
     });
@@ -76,23 +78,23 @@ function SpinningSF3D({ active }: { active: boolean }) {
       const alpha = 0.4 + (z + 1) * 0.3;
       ctx.beginPath();
       ctx.arc(px, py, 2.2, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(167,139,250,${Math.min(0.95, alpha)})`;
+      ctx.fillStyle = `rgba(186,177,206,${Math.min(0.95, alpha)})`;
       ctx.fill();
     });
 
     // Labels on left side
     ctx.font = "10px 'JetBrains Mono', monospace";
-    ctx.fillStyle = "rgba(167,139,250,0.6)";
+    ctx.fillStyle = "#c8bed9";
     ctx.textAlign = "right";
     ctx.fillText("Stable Fast 3D", cw * 0.38, cy - S * 0.7);
     ctx.font = "9px 'DM Sans', sans-serif";
-    ctx.fillStyle = "rgba(167,139,250,0.4)";
+    ctx.fillStyle = "#c8bed9";
     ctx.fillText("output: ±1 on all axes", cw * 0.38, cy - S * 0.7 + 14);
     ctx.fillText("no metric units", cw * 0.38, cy - S * 0.7 + 26);
 
     // Axis labels near cube
     ctx.font = "bold 11px 'JetBrains Mono', monospace";
-    ctx.fillStyle = "rgba(167,139,250,0.75)";
+    ctx.fillStyle = "rgba(186,177,206,0.75)";
     ctx.textAlign = "center";
     ctx.fillText("±1", cx + S * 1.3, cy);
     ctx.fillText("±1", cx, cy - S * 1.3);
@@ -100,15 +102,19 @@ function SpinningSF3D({ active }: { active: boolean }) {
   }, []);
 
   useEffect(() => {
-    if (!active) { draw(); return; }
+    if (!active || !enabled) { draw(); return; }
     const tick = () => {
+      if (document.hidden || !canvasRef.current || canvasRef.current.getBoundingClientRect().bottom < 0 || canvasRef.current.getBoundingClientRect().top > innerHeight) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
       angleRef.current += 0.018;
       draw();
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-  }, [active, draw]);
+  }, [active, draw, enabled]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -123,7 +129,7 @@ function SpinningSF3D({ active }: { active: boolean }) {
       ref={canvasRef}
       className="w-full h-full"
       style={{ display: "block" }}
-      aria-label="SF3D spinning wireframe cube — output normalised to ±1 on all axes"
+      aria-label="SF3D spinning wireframe cube. output normalised to ±1 on all axes"
     />
   );
 }
@@ -131,25 +137,25 @@ function SpinningSF3D({ active }: { active: boolean }) {
 type Visual = "lidar" | "upload" | "queue" | "sf3d" | "binding" | "sse" | "place";
 
 const C = {
-  teal: "#7dd3fc",
-  blue: "#5b9cf6",
-  orange: "#fb8c42",
-  purple: "#a78bfa",
-  text: "rgba(240,242,250,0.85)",
-  muted: "rgba(240,242,250,0.4)",
-  dim: "rgba(240,242,250,0.2)",
+  teal: "#b7c9a8",
+  blue: "#9bb7c9",
+  orange: "#dbb58d",
+  purple: "#bab1ce",
+  text: "rgba(242,238,230,0.85)",
+  muted: "#bec7be",
+  dim: "#bec7be",
   bg: "rgba(255,255,255,0.03)",
   border: "rgba(255,255,255,0.08)",
 };
 
 function StepVisual({ visual, active }: { visual: Visual; active: boolean }) {
-  const W = 320, H = 190;
+  const W = 340, H = 200;
 
   if (visual === "lidar") {
     return (
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full" aria-label="LiDAR measurement">
         <rect x="16" y="60" width="44" height="76" rx="7" fill={C.bg} stroke={C.teal} strokeWidth="1.5" />
-        <rect x="24" y="68" width="28" height="44" rx="3" fill="rgba(15,196,184,0.08)" />
+        <rect x="24" y="68" width="28" height="44" rx="3" fill="rgba(183,201,168,0.08)" />
         <circle cx="38" cy="126" r="4" fill={C.teal} opacity="0.6" />
         {[0,1,2,3,4].map((i) => (
           <line key={i} x1="60" y1={72 + i * 14} x2="160" y2={56 + i * 18}
@@ -173,7 +179,7 @@ function StepVisual({ visual, active }: { visual: Visual; active: boolean }) {
         <text x="210" y="132" fontSize="10" fill={C.teal} textAnchor="middle" fontWeight="600">31.3 cm</text>
         <line x1="264" y1="74" x2="264" y2="108" stroke={C.orange} strokeWidth="1.2" />
         <text x="278" y="95" fontSize="10" fill={C.orange} textAnchor="start" fontWeight="600">1.6 cm</text>
-        <rect x="58" y="154" width="204" height="22" rx="6" fill="rgba(15,196,184,0.1)" stroke="rgba(15,196,184,0.2)" strokeWidth="1" />
+        <rect x="58" y="154" width="204" height="22" rx="6" fill="rgba(183,201,168,0.1)" stroke="rgba(183,201,168,0.2)" strokeWidth="1" />
         <text x="160" y="169" fontSize="9.5" fill={C.teal} textAnchor="middle" fontWeight="600">state: &quot;measured&quot; · under 1 s</text>
       </svg>
     );
@@ -185,7 +191,7 @@ function StepVisual({ visual, active }: { visual: Visual; active: boolean }) {
         <rect x="16" y="56" width="44" height="76" rx="7" fill={C.bg} stroke={C.teal} strokeWidth="1.5" />
         {[0,1,2].map((i) => (
           <rect key={i} x={86 + i * 7} y={68 - i * 7} width="50" height="38" rx="4"
-            fill={i === 0 ? "rgba(15,196,184,0.07)" : C.bg}
+            fill={i === 0 ? "rgba(183,201,168,0.07)" : C.bg}
             stroke={i === 0 ? C.teal : C.border}
             strokeWidth={i === 0 ? 1.5 : 1}
             opacity={1 - i * 0.25}
@@ -204,7 +210,7 @@ function StepVisual({ visual, active }: { visual: Visual; active: boolean }) {
         <path id="pt-upload-path" d="M152 82 H194" fill="none" stroke="none" />
         <ellipse cx="220" cy="75" rx="30" ry="10" fill={C.bg} stroke={C.orange} strokeWidth="1.5" />
         <rect x="190" y="75" width="60" height="40" fill={C.bg} stroke={C.orange} strokeWidth="1.5" />
-        <ellipse cx="220" cy="115" rx="30" ry="10" fill="rgba(251,140,66,0.07)" stroke={C.orange} strokeWidth="1.5" />
+        <ellipse cx="220" cy="115" rx="30" ry="10" fill="rgba(219,181,141,0.07)" stroke={C.orange} strokeWidth="1.5" />
         <text x="220" y="98" fontSize="11" fill={C.orange} textAnchor="middle" fontWeight="700">R2</text>
         <text x="220" y="150" fontSize="8.5" fill={C.muted} textAnchor="middle">objects/{"{id}"}/frames/0.jpg</text>
         <defs>
@@ -261,13 +267,13 @@ function StepVisual({ visual, active }: { visual: Visual; active: boolean }) {
     return (
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full" aria-label="Scale binding">
         <text x="72" y="30" fontSize="9" fill={C.muted} textAnchor="middle" fontWeight="600">raw SF3D</text>
-        <rect x="28" y="42" width="88" height="88" rx="5" fill="rgba(167,139,250,0.07)" stroke={C.purple} strokeWidth="1.5" />
+        <rect x="28" y="42" width="88" height="88" rx="5" fill="rgba(186,177,206,0.07)" stroke={C.purple} strokeWidth="1.5" />
         <text x="72" y="92" fontSize="10" fill={C.purple} textAnchor="middle">1.0 × 1.0</text>
         <text x="72" y="108" fontSize="9" fill={C.muted} textAnchor="middle">dimensionless</text>
         <path id="pt-bind-arrow" d="M122 86 H158" fill="none" stroke={C.teal} strokeWidth="2" markerEnd="url(#barr-b)" />
         <text x="140" y="76" fontSize="8" fill={C.teal} textAnchor="middle" fontWeight="700">bind</text>
-        <text x="140" y="88" fontSize="7" fill={C.teal} textAnchor="middle">sx = w / extX</text>
-        <text x="140" y="98" fontSize="7" fill={C.teal} textAnchor="middle">sy = h / extY</text>
+        <text x="105" y="157" fontSize="10" fill={C.teal} textAnchor="middle">sx = w / extX</text>
+        <text x="235" y="157" fontSize="10" fill={C.teal} textAnchor="middle">sy = h / extY</text>
         {active && (
           <circle r="4" fill={C.teal} opacity="0.9">
             <animateMotion dur="1.1s" repeatCount="indefinite">
@@ -276,10 +282,10 @@ function StepVisual({ visual, active }: { visual: Visual; active: boolean }) {
           </circle>
         )}
         <text x="232" y="30" fontSize="9" fill={C.muted} textAnchor="middle" fontWeight="600">bound mesh</text>
-        <rect x="172" y="76" width="120" height="8" rx="2" fill="rgba(15,196,184,0.12)" stroke={C.teal} strokeWidth="1.5" />
-        <rect x="175" y="50" width="114" height="28" rx="3" fill="rgba(15,196,184,0.06)" stroke={C.teal} strokeWidth="1.5" />
+        <rect x="172" y="76" width="120" height="8" rx="2" fill="rgba(183,201,168,0.12)" stroke={C.teal} strokeWidth="1.5" />
+        <rect x="175" y="50" width="114" height="28" rx="3" fill="rgba(183,201,168,0.06)" stroke={C.teal} strokeWidth="1.5" />
         <text x="232" y="100" fontSize="10" fill={C.teal} textAnchor="middle" fontWeight="700">0.3126 m</text>
-        <text x="294" y="65" fontSize="9" fill={C.teal} textAnchor="start">0.016 m</text>
+        <text x="232" y="176" fontSize="10" fill={C.teal} textAnchor="middle">height: 0.016 m</text>
         <text x="232" y="118" fontSize="9" fill={C.muted} textAnchor="middle">= LiDAR measurement</text>
         <text x="232" y="131" fontSize="8" fill={C.dim} textAnchor="middle">accurate to 1 × 10⁻⁸ m</text>
         <defs>
@@ -343,16 +349,16 @@ function StepVisual({ visual, active }: { visual: Visual; active: boolean }) {
   if (visual === "place") {
     return (
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full" aria-label="Placed in headset">
-        <rect x="60" y="20" width="200" height="140" rx="5" fill="rgba(15,196,184,0.05)" stroke={C.teal} strokeWidth="1.5" />
+        <rect x="60" y="20" width="200" height="140" rx="5" fill="rgba(183,201,168,0.05)" stroke={C.teal} strokeWidth="1.5" />
         <text x="160" y="14" fontSize="9" fill={C.muted} textAnchor="middle">Room H · 2.76 x 4.72 m</text>
         <rect x="60" y="20" width="200" height="7" fill={C.teal} opacity="0.2" />
         <rect x="60" y="153" width="200" height="7" fill={C.teal} opacity="0.2" />
         <rect x="60" y="20" width="7" height="140" fill={C.teal} opacity="0.2" />
         <rect x="253" y="20" width="7" height="140" fill={C.teal} opacity="0.2" />
-        <rect x="128" y="70" width="40" height="28" rx="3" fill="rgba(240,242,250,0.12)" stroke="rgba(240,242,250,0.3)" strokeWidth="1.5" transform="rotate(18, 148, 84)" />
+        <rect x="128" y="70" width="40" height="28" rx="3" fill="#bec7be" stroke="rgba(242,238,230,0.3)" strokeWidth="1.5" transform="rotate(18, 148, 84)" />
         <text x="155" y="112" fontSize="9" fill={C.muted} textAnchor="middle">MacBook Pro 14</text>
-        <rect x="66" y="130" width="104" height="18" rx="4" fill="rgba(15,196,184,0.1)" stroke="rgba(15,196,184,0.25)" strokeWidth="1" />
-        <text x="118" y="143" fontSize="8" fill={C.teal} textAnchor="middle" fontWeight="700">scale: 1.0 · y: 0.0 (floor)</text>
+        <rect x="66" y="130" width="104" height="18" rx="4" fill="rgba(183,201,168,0.1)" stroke="rgba(183,201,168,0.25)" strokeWidth="1" />
+        <text x="118" y="142" fontSize="9" fill={C.teal} textAnchor="middle" fontWeight="700">scale: 1.0 · y: 0.0 (floor)</text>
         <rect x="60" y="170" width="200" height="16" rx="4" fill="rgba(0,0,0,0.2)" stroke={C.border} strokeWidth="1" />
         <text x="160" y="181.5" fontSize="8" fill={C.muted} textAnchor="middle">origin = bottom-centre · no downstream rescaling</text>
       </svg>
@@ -360,29 +366,6 @@ function StepVisual({ visual, active }: { visual: Visual; active: boolean }) {
   }
 
   return null;
-}
-
-// Typewriter hook: retypes text whenever `text` changes
-function useTypewriter(text: string, speedMs = 18): string {
-  const [displayed, setDisplayed] = useState("");
-  const textRef = useRef(text);
-
-  useEffect(() => {
-    textRef.current = text;
-    setDisplayed("");
-    let i = 0;
-    const id = setInterval(() => {
-      i++;
-      if (i > textRef.current.length) {
-        clearInterval(id);
-        return;
-      }
-      setDisplayed(textRef.current.slice(0, i));
-    }, speedMs);
-    return () => clearInterval(id);
-  }, [text, speedMs]);
-
-  return displayed;
 }
 
 export default function PipelineTrace() {
@@ -393,7 +376,7 @@ export default function PipelineTrace() {
   const current = PIPELINE_STEPS[step];
   const total = PIPELINE_STEPS.length;
 
-  const typedOutput = useTypewriter(current.dataOut, 14);
+  const typedOutput = current.dataOut;
 
   const goTo = (i: number) => {
     setDir(i > step ? 1 : -1);
@@ -410,7 +393,7 @@ export default function PipelineTrace() {
   return (
     <div>
       {/* Large step circles progress bar */}
-      <div className="flex items-center gap-1.5 mb-6 overflow-x-auto pb-1" role="list" aria-label="Pipeline steps">
+      <div className="flex items-center gap-1.5 mb-6 overflow-x-auto overflow-y-hidden py-2 px-1" role="list" aria-label="Pipeline steps">
         {PIPELINE_STEPS.map((s, i) => {
           const isActive = i === step;
           const isDone = i < step;
@@ -431,31 +414,24 @@ export default function PipelineTrace() {
                   height: isActive ? 40 : 32,
                   borderRadius: "50%",
                   background: isActive
-                    ? "rgba(125,211,252,0.15)"
+                    ? "rgba(183,201,168,0.15)"
                     : isDone
-                    ? "rgba(125,211,252,0.08)"
+                    ? "rgba(183,201,168,0.08)"
                     : "rgba(255,255,255,0.04)",
-                  border: `2px solid ${isActive ? "#7dd3fc" : isDone ? "rgba(125,211,252,0.4)" : "rgba(255,255,255,0.1)"}`,
-                  boxShadow: isActive ? "0 0 16px rgba(125,211,252,0.25)" : "none",
+                  border: `2px solid ${isActive ? "#b7c9a8" : isDone ? "rgba(183,201,168,0.4)" : "rgba(255,255,255,0.1)"}`,
+                  boxShadow: isActive ? "0 0 16px rgba(183,201,168,0.25)" : "none",
                 }}
               >
-                {/* Pulsing outer ring for active */}
-                {isActive && (
-                  <span
-                    className="absolute inset-0 rounded-full"
-                    style={{ border: "2px solid rgba(125,211,252,0.35)", animation: "ping 2s cubic-bezier(0,0,0.2,1) infinite" }}
-                  />
-                )}
                 {isDone ? (
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                    <path d="M2.5 7L5.5 10L11.5 4" stroke="#7dd3fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M2.5 7L5.5 10L11.5 4" stroke="#b7c9a8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 ) : (
                   <span
                     style={{
                       fontSize: isActive ? 13 : 11,
                       fontWeight: 700,
-                      color: isActive ? "#7dd3fc" : isDone ? "rgba(125,211,252,0.6)" : "rgba(240,242,250,0.35)",
+                      color: isActive ? "#b7c9a8" : isDone ? "rgba(183,201,168,0.6)" : "#bec7be",
                       lineHeight: 1,
                     }}
                   >
@@ -475,7 +451,7 @@ export default function PipelineTrace() {
       <div className="h-0.5 rounded-full mb-5 overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
         <motion.div
           className="h-full rounded-full"
-          style={{ background: "#7dd3fc" }}
+          style={{ background: "#b7c9a8" }}
           animate={{ width: `${((step + 1) / total) * 100}%` }}
           transition={{ type: "spring", stiffness: 120, damping: 20 }}
         />
@@ -487,7 +463,7 @@ export default function PipelineTrace() {
           className="rounded-xl overflow-hidden"
           style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.06)" }}
         >
-          <div className="aspect-[16/9] flex items-center justify-center p-4 overflow-hidden">
+          <div className="diagram-scroll w-full h-[230px] overflow-x-auto p-2 sm:p-4" tabIndex={0} role="region" aria-label="Scrollable pipeline illustration">
             <AnimatePresence mode="wait" custom={dir}>
               <motion.div
                 key={step}
@@ -497,7 +473,7 @@ export default function PipelineTrace() {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.28, ease: "easeInOut" }}
-                className="w-full h-full"
+                className="w-full min-w-[340px] h-full"
               >
                 <StepVisual visual={current.visual as Visual} active={true} />
               </motion.div>
@@ -508,12 +484,12 @@ export default function PipelineTrace() {
             style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
           >
             <pre
-              className="text-[10px] font-mono leading-relaxed overflow-x-auto max-h-28 whitespace-pre"
-              style={{ color: "rgba(240,242,250,0.4)" }}
+              className="text-[10px] font-mono leading-relaxed overflow-x-auto h-28 whitespace-pre"
+              style={{ color: "#bec7be" }}
             >
               {typedOutput}
               <span
-                style={{ borderRight: "1px solid rgba(125,211,252,0.7)", animation: "blink 1.1s step-end infinite", marginLeft: 1 }}
+                style={{ borderRight: "1px solid rgba(183,201,168,0.7)", animation: "blink 1.1s step-end infinite", marginLeft: 1 }}
               />
             </pre>
           </div>
@@ -533,14 +509,14 @@ export default function PipelineTrace() {
               className="flex flex-col flex-1"
             >
               <div className="flex items-start gap-3 mb-3">
-                <span className="text-xs font-bold tracking-widest mt-0.5 shrink-0" style={{ color: "#7dd3fc" }}>{current.label}</span>
+                <span className="text-xs font-bold tracking-widest mt-0.5 shrink-0" style={{ color: "#b7c9a8" }}>{current.label}</span>
                 <div>
                   <h3 className="text-xl font-bold text-white leading-tight">{current.title}</h3>
-                  <p className="text-sm font-medium mt-0.5" style={{ color: "#7dd3fc" }}>{current.subtitle}</p>
+                  <p className="text-sm font-medium mt-0.5" style={{ color: "#b7c9a8" }}>{current.subtitle}</p>
                 </div>
               </div>
 
-              <p className="text-sm leading-relaxed mb-4" style={{ color: "rgba(240,242,250,0.55)" }}>
+              <p className="text-sm leading-relaxed mb-4" style={{ color: "#bec7be" }}>
                 {current.body}
               </p>
             </motion.div>
@@ -549,7 +525,7 @@ export default function PipelineTrace() {
           <button
             onClick={() => setExpanded(!expanded)}
             className="text-xs font-semibold text-left mb-2 transition-colors focus-ring"
-            style={{ color: "rgba(15,196,184,0.7)" }}
+            style={{ color: "#b7c9a8" }}
             aria-expanded={expanded}
           >
             {expanded ? "Hide implementation detail ↑" : "Show implementation detail ↓"}
@@ -569,7 +545,7 @@ export default function PipelineTrace() {
                   style={{
                     background: "rgba(0,0,0,0.2)",
                     border: "1px solid rgba(255,255,255,0.06)",
-                    color: "rgba(240,242,250,0.72)",
+                    color: "rgba(242,238,230,0.72)",
                   }}
                 >
                   {current.technical}
@@ -586,7 +562,7 @@ export default function PipelineTrace() {
             >
               ← Prev
             </button>
-            <span className="text-sm flex-1 text-center" style={{ color: "rgba(240,242,250,0.3)" }} aria-live="polite">
+            <span className="text-sm flex-1 text-center" style={{ color: "#bec7be" }} aria-live="polite">
               {step + 1} / {total}
             </span>
             <button
@@ -606,18 +582,18 @@ export default function PipelineTrace() {
           <button
             key={s.id}
             onClick={() => goTo(i)}
-            className="text-center px-1 py-2 rounded-lg text-[10px] font-medium transition-all duration-200 focus-ring"
+            className="text-center px-1 py-2 rounded-lg text-[11px] font-medium transition-all duration-200 focus-ring"
             style={{
-              background: i === step ? "rgba(15,196,184,0.15)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${i === step ? "rgba(15,196,184,0.4)" : "rgba(255,255,255,0.08)"}`,
-              color: i === step ? "#7dd3fc" : "rgba(240,242,250,0.4)",
+              background: i === step ? "rgba(183,201,168,0.15)" : "rgba(255,255,255,0.04)",
+              border: `1px solid ${i === step ? "rgba(183,201,168,0.4)" : "rgba(255,255,255,0.08)"}`,
+              color: i === step ? "#b7c9a8" : "#bec7be",
               transform: i === step ? "translateY(-1px)" : "none",
-              boxShadow: i === step ? "0 4px 16px rgba(15,196,184,0.15)" : "none",
+              boxShadow: i === step ? "0 4px 16px rgba(183,201,168,0.15)" : "none",
             }}
             aria-current={i === step ? "step" : undefined}
           >
             <div className="font-bold">{s.label}</div>
-            <div className="hidden sm:block leading-tight mt-0.5 text-[9px] opacity-70">
+            <div className="hidden sm:block leading-tight mt-0.5 text-[11px]">
               {s.title.split(" ").slice(0, 2).join(" ")}
             </div>
           </button>

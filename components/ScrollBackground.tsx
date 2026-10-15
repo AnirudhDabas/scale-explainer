@@ -55,7 +55,7 @@ export default function ScrollBackground() {
           width: 700,
           height: 700,
           background:
-            "radial-gradient(circle at center, rgba(15,196,184,0.12) 0%, rgba(15,196,184,0.04) 50%, transparent 70%)",
+            "radial-gradient(circle at center, rgba(183,201,168,0.12) 0%, rgba(183,201,168,0.04) 50%, transparent 70%)",
           borderRadius: "50%",
           filter: "blur(60px)",
           opacity: 0.55,
@@ -73,7 +73,7 @@ export default function ScrollBackground() {
           width: 600,
           height: 600,
           background:
-            "radial-gradient(circle at center, rgba(91,156,246,0.1) 0%, rgba(91,156,246,0.03) 50%, transparent 70%)",
+            "radial-gradient(circle at center, rgba(155,183,201,0.1) 0%, rgba(155,183,201,0.03) 50%, transparent 70%)",
           borderRadius: "50%",
           filter: "blur(70px)",
           opacity: 0.4,
@@ -91,7 +91,7 @@ export default function ScrollBackground() {
           width: 550,
           height: 550,
           background:
-            "radial-gradient(circle at center, rgba(167,139,250,0.1) 0%, rgba(167,139,250,0.03) 50%, transparent 70%)",
+            "radial-gradient(circle at center, rgba(186,177,206,0.1) 0%, rgba(186,177,206,0.03) 50%, transparent 70%)",
           borderRadius: "50%",
           filter: "blur(80px)",
           opacity: 0.3,

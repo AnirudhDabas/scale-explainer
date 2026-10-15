@@ -30,10 +30,10 @@ export default function Marquee() {
           <span
             key={i}
             className="font-mono shrink-0"
-            style={{ fontSize: 11, color: "rgba(240,242,250,0.32)", letterSpacing: "0.04em" }}
+            style={{ fontSize: 11, color: "#bec7be", letterSpacing: "0.04em" }}
           >
             {item}
-            <span style={{ marginLeft: 40, color: "rgba(125,211,252,0.3)" }}>·</span>
+            <span style={{ marginLeft: 40, color: "rgba(183,201,168,0.3)" }}>·</span>
           </span>
         ))}
       </div>

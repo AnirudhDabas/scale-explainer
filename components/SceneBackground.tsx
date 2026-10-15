@@ -2,17 +2,20 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import type { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { useMotionPreferences } from "./MotionPreferences";
 
 const ROOM = { w: 4.72, h: 2.96, d: 2.76 };
-const TEAL   = 0x7dd3fc;
+const TEAL   = 0xb7c9a8;
 const TEAL_C = new THREE.Color(TEAL);
 
 export default function SceneBackground() {
   const mountRef = useRef<HTMLDivElement>(null);
+  const { enabled } = useMotionPreferences();
 
   useEffect(() => {
     const el = mountRef.current;
-    if (!el) return;
+    if (!el || !enabled) return;
     const test = document.createElement("canvas");
     if (!test.getContext("webgl2") && !test.getContext("webgl")) return;
 
@@ -20,12 +23,12 @@ export default function SceneBackground() {
       // ── Renderer ────────────────────────────────────────────
       const W = window.innerWidth, H = window.innerHeight;
       const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, W < 768 ? 1 : 1.25));
       renderer.setSize(W, H);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 0.9;
       renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.enabled = false;
       renderer.shadowMap.type = THREE.PCFShadowMap;
       el.appendChild(renderer.domElement);
 
@@ -34,17 +37,18 @@ export default function SceneBackground() {
       camera.position.set(2.5, 2.8, 6.5);
 
       // ── Bloom via EffectComposer (graceful fallback) ─────────
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let composer: any = null;
+      let disposed = false;
+      let composer: EffectComposer | null = null;
       Promise.all([
         import("three/examples/jsm/postprocessing/EffectComposer.js"),
         import("three/examples/jsm/postprocessing/RenderPass.js"),
         import("three/examples/jsm/postprocessing/UnrealBloomPass.js"),
         import("three/examples/jsm/postprocessing/OutputPass.js"),
       ]).then(([{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }]) => {
+        if (disposed) return;
         composer = new EffectComposer(renderer);
         composer.addPass(new RenderPass(scene, camera));
-        const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.65, 0.7, 0.35);
+        const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.18, 0.7, 0.5);
         composer.addPass(bloom);
         composer.addPass(new OutputPass());
       }).catch(() => {});
@@ -57,7 +61,7 @@ export default function SceneBackground() {
       sun.castShadow = true;
       scene.add(sun);
 
-      const tealFill = new THREE.DirectionalLight(0x7dd3fc, 1.2);
+      const tealFill = new THREE.DirectionalLight(0xb7c9a8, 1.2);
       tealFill.position.set(-5, 4, 2);
       scene.add(tealFill);
 
@@ -65,7 +69,7 @@ export default function SceneBackground() {
       warmBack.position.set(0, 3, -7);
       scene.add(warmBack);
 
-      const movingPt = new THREE.PointLight(0x7dd3fc, 3.5, 10);
+      const movingPt = new THREE.PointLight(0xb7c9a8, 3.5, 10);
       movingPt.position.set(0, 2, 0);
       scene.add(movingPt);
 
@@ -249,7 +253,7 @@ export default function SceneBackground() {
       ptGeo.setAttribute("position", new THREE.BufferAttribute(ptPositions, 3));
       const ptOpacity = new THREE.BufferAttribute(new Float32Array(PT_COUNT), 1);
       ptGeo.setAttribute("opacity", ptOpacity);
-      // Use "ptColor" — "color" is reserved by Three.js when vertexColors is set
+      // Use "ptColor". "color" is reserved by Three.js when vertexColors is set
       ptGeo.setAttribute("ptColor", new THREE.BufferAttribute(ptColors, 3));
 
       const ptMat = new THREE.ShaderMaterial({
@@ -458,11 +462,22 @@ export default function SceneBackground() {
         { pos: new THREE.Vector3( 2.5, 2.8,  6.5), look: new THREE.Vector3( 0,   1.2,  0) },   // Hero
         { pos: new THREE.Vector3(-1.5, 2.8,  5.5), look: new THREE.Vector3( 0,   1.5,  0) },   // Architecture
         { pos: new THREE.Vector3( 3.0, 1.8,  4.5), look: new THREE.Vector3( 0,   1.0, -0.5) }, // Pipeline
-        { pos: new THREE.Vector3(-0.8, 1.5,  3.5), look: new THREE.Vector3(-1.6, 0.8,  0.3) }, // Binding — close to MacBook
-        { pos: new THREE.Vector3( 0.5, 5.5,  1.0), look: new THREE.Vector3( 0,   0.5,  0) },   // Fit engine — top-down
-        { pos: new THREE.Vector3( 2.5, 2.8,  6.5), look: new THREE.Vector3( 0,   1.2,  0) },   // Decisions — back to start
+        { pos: new THREE.Vector3(-0.8, 1.5,  3.5), look: new THREE.Vector3(-1.6, 0.8,  0.3) }, // Binding. close to MacBook
+        { pos: new THREE.Vector3( 0.5, 5.5,  1.0), look: new THREE.Vector3( 0,   0.5,  0) },   // Fit engine. top-down
+        { pos: new THREE.Vector3( 2.5, 2.8,  6.5), look: new THREE.Vector3( 0,   1.2,  0) },   // Decisions. back to start
       ];
 
+      let sectionTops: number[] = [];
+      const measureSections = () => {
+        sectionTops = ["main-content", "architecture", "pipeline", "binding", "fitengine", "decisions"].map(id => {
+          const section = document.getElementById(id);
+          return section ? section.getBoundingClientRect().top + scrollY : 0;
+        });
+      };
+      const layoutObserver = new ResizeObserver(measureSections);
+      layoutObserver.observe(document.body);
+      measureSections();
+      let lastFrame = 0;
       let t = 0;
       let animId: number;
       const macBaseY   = mac.position.y;
@@ -474,16 +489,19 @@ export default function SceneBackground() {
       const targetPos  = new THREE.Vector3();
       const targetLook = new THREE.Vector3();
 
-      const animate = () => {
+      const animate = (now: number) => {
         animId = requestAnimationFrame(animate);
-        t += 0.004;
+        if (document.hidden || now - lastFrame < 32) return;
+        lastFrame = now;
+        t += 0.008;
 
         // ── Scroll → camera waypoint interpolation ────────────
-        const scrollPct = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
-        const s = Math.min(1, Math.max(0, scrollPct));
         const segCount = scrollWaypoints.length - 1;
-        const segIdx = Math.min(Math.floor(s * segCount), segCount - 1);
-        const segT   = (s * segCount) - segIdx;
+        const scrollPosition = scrollY + innerHeight * 0.25;
+        let segIdx = 0;
+        while (segIdx < segCount - 1 && scrollPosition >= sectionTops[segIdx + 1]) segIdx++;
+        const segT = THREE.MathUtils.clamp((scrollPosition - sectionTops[segIdx]) / Math.max(1, sectionTops[segIdx + 1] - sectionTops[segIdx]), 0, 1);
+        const s = (segIdx + segT) / segCount;
         const wA = scrollWaypoints[segIdx];
         const wB = scrollWaypoints[Math.min(segIdx + 1, segCount)];
 
@@ -569,7 +587,7 @@ export default function SceneBackground() {
         }
       };
 
-      animate();
+      animId = requestAnimationFrame(animate);
 
       const onResize = () => {
         const nW = window.innerWidth, nH = window.innerHeight;
@@ -581,7 +599,21 @@ export default function SceneBackground() {
       window.addEventListener("resize", onResize, { passive: true });
 
       return () => {
+        disposed = true;
         cancelAnimationFrame(animId);
+        layoutObserver.disconnect();
+        composer?.passes.forEach(pass => pass.dispose());
+        composer?.dispose();
+        const geometries = new Set<THREE.BufferGeometry>();
+        const materials = new Set<THREE.Material>();
+        scene.traverse(node => {
+          if (node instanceof THREE.Mesh || node instanceof THREE.LineSegments || node instanceof THREE.Line || node instanceof THREE.Points) {
+            geometries.add(node.geometry);
+            (Array.isArray(node.material) ? node.material : [node.material]).forEach(m => materials.add(m));
+          }
+        });
+        geometries.forEach(g => g.dispose());
+        materials.forEach(m => m.dispose());
         window.removeEventListener("resize", onResize);
         renderer.dispose();
         if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
@@ -589,13 +621,13 @@ export default function SceneBackground() {
     } catch (err) {
       console.warn("SceneBackground:", err);
     }
-  }, []);
+  }, [enabled]);
 
   return (
     <div
       ref={mountRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0 }}
+      style={{ zIndex: 0, opacity: 0.32, filter: "saturate(0.35)" }}
       aria-hidden="true"
     />
   );

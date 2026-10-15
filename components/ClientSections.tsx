@@ -2,6 +2,10 @@
 
 import dynamic from "next/dynamic";
 
+export const SpatialStory = dynamic(() => import("./SpatialStory"), {
+  loading: () => <div className="reading-surface h-96" aria-label="Loading spatial walkthrough" />,
+});
+
 const Skeleton = () => (
   <div className="h-64 rounded-2xl bg-white/[0.02] animate-pulse" />
 );

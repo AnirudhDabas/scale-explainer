@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMotionPreferences } from "./MotionPreferences";
 
 const PRESETS = [
   { label: "MacBook Pro 14", w: 0.3126, h: 0.0155, d: 0.2212 },
@@ -117,19 +118,20 @@ interface ScaleFactorRowProps {
 function ScaleFactorRow({ axis, formula, val, changed }: ScaleFactorRowProps) {
   return (
     <motion.div
-      className="flex items-center gap-2"
-      animate={changed ? { backgroundColor: ["rgba(125,211,252,0.15)", "rgba(0,0,0,0)"] } : {}}
+      className="flex flex-wrap items-center gap-x-2 gap-y-1"
+      animate={changed ? { backgroundColor: ["rgba(183,201,168,0.15)", "rgba(0,0,0,0)"] } : {}}
       transition={{ duration: 0.6 }}
       style={{ borderRadius: 4, paddingLeft: 4, paddingRight: 4 }}
     >
-      <span className="w-6 font-bold" style={{ color: "#7dd3fc" }}>{axis}</span>
-      <span style={{ color: "rgba(240,242,250,0.62)" }}>= {formula}</span>
-      <span className="ml-auto font-bold text-white">= {val.toFixed(4)}</span>
+      <span className="w-6 font-bold" style={{ color: "#b7c9a8" }}>{axis}</span>
+      <span style={{ color: "#bec7be" }}>= {formula}</span>
+      <span className="ml-auto font-bold text-white whitespace-nowrap">= {val.toFixed(4)}</span>
     </motion.div>
   );
 }
 
 export default function ScaleBinding() {
+  const { enabled } = useMotionPreferences();
   const [w, setW] = useState(0.3126);
   const [h, setH] = useState(0.0155);
   const [d, setD] = useState(0.2212);
@@ -171,44 +173,44 @@ export default function ScaleBinding() {
     const glow = glowRef.current;
 
     // Raw box: normalised ±1, rotates continuously
-    const rawCx = cw * 0.22;
+    const rawCx = cw * 0.23;
     const rawCy = ch * 0.52;
-    drawIsoBox(ctx, rawCx, rawCy, 2.0, 2.0, 2.0, "#a78bfa", ISO_SCALE * 0.3, rot);
+    drawIsoBox(ctx, rawCx, rawCy, 2.0, 2.0, 2.0, "#bab1ce", ISO_SCALE * 0.3, rot);
 
-    ctx.fillStyle = "rgba(167,139,250,0.7)";
-    ctx.font = "bold 10px 'DM Sans', sans-serif";
+    ctx.fillStyle = "#c8bed9";
+    ctx.font = "bold 12px 'DM Sans', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Raw SF3D", rawCx, rawCy + 52);
-    ctx.fillStyle = "rgba(167,139,250,0.45)";
-    ctx.font = "9px 'DM Sans', sans-serif";
+    ctx.fillStyle = "#c8bed9";
+    ctx.font = "11px 'DM Sans', sans-serif";
     ctx.fillText("±1 normalised", rawCx, rawCy + 65);
 
     // Animated bind arrow (pulsing when glow active)
     const arrowMidY = rawCy - 12;
     const arrowAlpha = 0.7 + glow * 0.3;
     ctx.globalAlpha = arrowAlpha;
-    drawArrow(ctx, rawCx + 44, arrowMidY, cw * 0.54 - 44, "#7dd3fc");
-    ctx.fillStyle = "#7dd3fc";
+    drawArrow(ctx, rawCx + 35, arrowMidY, cw * 0.77 - 35, "#b7c9a8");
+    ctx.fillStyle = "#b7c9a8";
     ctx.font = "bold 11px 'DM Sans', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("bind", (rawCx + 44 + cw * 0.54 - 44) / 2, arrowMidY - 7);
+    ctx.fillText("bind", (rawCx + 35 + cw * 0.77 - 35) / 2, arrowMidY - 7);
     ctx.globalAlpha = 1;
 
     // Bound box: actual dimensions, also rotates
-    const boundCx = cw * 0.76;
+    const boundCx = cw * 0.77;
     const boundCy = ch * 0.52;
     const dispMax  = Math.max(dw, dh, dd);
     const visScale = dispMax > 0 ? (ISO_SCALE * 0.75) / dispMax : ISO_SCALE * 0.75;
-    // Offset rotation slightly so they don't perfectly align — more dynamic
-    drawIsoBox(ctx, boundCx, boundCy, dw, dh, dd, "#7dd3fc", visScale, rot + 0.4, glow * 0.55);
+    // Offset rotation slightly so they don't perfectly align. more dynamic
+    drawIsoBox(ctx, boundCx, boundCy, dw, dh, dd, "#b7c9a8", visScale, rot + 0.4, glow * 0.55);
 
-    ctx.fillStyle = "rgba(125,211,252,0.85)";
-    ctx.font = "bold 10px 'DM Sans', sans-serif";
+    ctx.fillStyle = "rgba(183,201,168,0.85)";
+    ctx.font = "bold 12px 'DM Sans', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Bound mesh", boundCx, boundCy + 52);
-    ctx.fillStyle = "rgba(125,211,252,0.55)";
-    ctx.font = "9px 'DM Sans', sans-serif";
-    ctx.fillText(`${dw.toFixed(3)} × ${dh.toFixed(3)} × ${dd.toFixed(3)} m`, boundCx, boundCy + 65);
+    ctx.fillStyle = "#b7c9a8";
+    ctx.font = "11px 'DM Sans', sans-serif";
+    ctx.fillText(`${dw.toFixed(3)} × ${dh.toFixed(3)} × ${dd.toFixed(3)} m`, cw / 2, ch - 18);
   }, []);
 
   // Unified animation loop: rotation + dimension lerp
@@ -224,9 +226,14 @@ export default function ScaleBinding() {
 
   useEffect(() => {
     if (animRef.current !== null) cancelAnimationFrame(animRef.current);
+    if (!enabled) { drawCanvas(); return; }
     const LERP = 0.1;
 
     const tick = () => {
+      if (document.hidden || !canvasRef.current || canvasRef.current.getBoundingClientRect().bottom < 0 || canvasRef.current.getBoundingClientRect().top > innerHeight) {
+        animRef.current = requestAnimationFrame(tick);
+        return;
+      }
       // Continuous rotation
       rotAngle.current += 0.006;
       // Decay glow
@@ -246,7 +253,11 @@ export default function ScaleBinding() {
 
     animRef.current = requestAnimationFrame(tick);
     return () => { if (animRef.current !== null) cancelAnimationFrame(animRef.current); };
-  }, [drawCanvas]);
+  }, [drawCanvas, enabled]);
+
+  useEffect(() => {
+    if (!enabled) { displayRef.current = { w, h, d }; glowRef.current = 0; drawCanvas(); }
+  }, [w, h, d, enabled, drawCanvas]);
 
   // Resize observer
   useEffect(() => {
@@ -273,18 +284,18 @@ export default function ScaleBinding() {
 
   return (
     <div>
-      <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(240,242,250,0.5)" }}>
+      <p className="text-sm leading-relaxed mb-6" style={{ color: "#bec7be" }}>
         SF3D outputs a mesh normalised to roughly ±1 on every axis. The adapter rescales it to the
         LiDAR-measured bounding box in a single pass. Adjust the measured dimensions to see the
         binding compute in real time.
-        <span className="block mt-1 text-xs italic opacity-60">
+        <span className="block mt-1 text-xs italic">
           Raw extents shown are simulated proportionally (exact SF3D raw extents vary per mesh).
         </span>
       </p>
 
       {/* Preset buttons */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <span className="text-xs font-semibold self-center" style={{ color: "rgba(240,242,250,0.62)" }}>Presets:</span>
+        <span className="text-xs font-semibold self-center" style={{ color: "#bec7be" }}>Presets:</span>
         {PRESETS.map((p) => {
           const isActive = w === p.w && h === p.h && d === p.d;
           return (
@@ -293,9 +304,9 @@ export default function ScaleBinding() {
               onClick={() => { setW(p.w); setH(p.h); setD(p.d); }}
               className="btn-primary focus-ring text-xs relative overflow-hidden"
               animate={{
-                background: isActive ? "rgba(125,211,252,0.12)" : "rgba(255,255,255,0.04)",
-                borderColor: isActive ? "rgba(125,211,252,0.4)" : "rgba(255,255,255,0.1)",
-                color: isActive ? "#7dd3fc" : "rgba(240,242,250,0.6)",
+                background: isActive ? "rgba(183,201,168,0.12)" : "rgba(255,255,255,0.04)",
+                borderColor: isActive ? "rgba(183,201,168,0.4)" : "rgba(255,255,255,0.1)",
+                color: isActive ? "#b7c9a8" : "#bec7be",
               }}
               transition={{ duration: 0.2 }}
               style={{ border: "1px solid" }}
@@ -330,8 +341,8 @@ export default function ScaleBinding() {
           ].map(({ label, val, set, min, max }) => (
             <div key={label}>
               <div className="flex justify-between mb-2">
-                <label className="text-xs font-medium" style={{ color: "rgba(240,242,250,0.6)" }}>{label}</label>
-                <span className="text-xs font-mono font-bold" style={{ color: "#7dd3fc" }}>{val.toFixed(4)} m</span>
+                <label className="text-xs font-medium" style={{ color: "#bec7be" }}>{label}</label>
+                <span className="text-xs font-mono font-bold" style={{ color: "#b7c9a8" }}>{val.toFixed(4)} m</span>
               </div>
               <input
                 type="range"
@@ -350,8 +361,8 @@ export default function ScaleBinding() {
           <motion.div
             key={scaleKey}
             className="rounded-xl p-4"
-            initial={{ boxShadow: "0 0 0 0 rgba(125,211,252,0)" }}
-            animate={{ boxShadow: ["0 0 12px 2px rgba(125,211,252,0.15)", "0 0 0 0 rgba(125,211,252,0)"] }}
+            initial={{ boxShadow: "0 0 0 0 rgba(183,201,168,0)" }}
+            animate={{ boxShadow: ["0 0 12px 2px rgba(183,201,168,0.15)", "0 0 0 0 rgba(183,201,168,0)"] }}
             transition={{ duration: 0.5 }}
             style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.06)" }}
           >
@@ -361,7 +372,7 @@ export default function ScaleBinding() {
               <ScaleFactorRow axis="sy" formula={`${h.toFixed(4)} / ${rawY.toFixed(4)}`} val={sy} changed={changedAxes.sy} />
               <ScaleFactorRow axis="sz" formula={`${d.toFixed(4)} / ${rawZ.toFixed(4)}`} val={sz} changed={changedAxes.sz} />
             </div>
-            <p className="text-[10px] mt-3 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(240,242,250,0.50)" }}>
+            <p className="text-[10px] mt-3 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "#bec7be" }}>
               Source: services/gen/app/generate_server.py, docs/SYSTEM_STATE.md
             </p>
           </motion.div>
@@ -371,31 +382,31 @@ export default function ScaleBinding() {
         <div>
           <h3 className="text-sm font-semibold text-white mb-3">The binding contract</h3>
           <div
-            className="rounded-xl p-4 space-y-3 h-full"
+            className="rounded-xl p-4 space-y-3"
             style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.06)" }}
           >
-            <div className="text-xs font-mono space-y-1.5" style={{ color: "rgba(240,242,250,0.65)" }}>
-              <p style={{ color: "rgba(240,242,250,0.38)" }}># one scale binding, applied exactly once</p>
-              <p><span style={{ color: "#a78bfa" }}>raw</span> = sf3d_output(<span style={{ color: "#fb8c42" }}>best_frame</span>)</p>
-              <p><span style={{ color: "#7dd3fc" }}>sx</span> = bbox.w / raw.extentX</p>
-              <p><span style={{ color: "#7dd3fc" }}>sy</span> = bbox.h / raw.extentY</p>
-              <p><span style={{ color: "#7dd3fc" }}>sz</span> = bbox.d / raw.extentZ</p>
-              <p>mesh.scale(<span style={{ color: "#7dd3fc" }}>sx, sy, sz</span>)</p>
-              <p style={{ color: "rgba(240,242,250,0.38)" }}># glTF node scale written as 1.0</p>
+            <div className="text-xs font-mono space-y-1.5" style={{ color: "#bec7be" }}>
+              <p style={{ color: "#bec7be" }}># one scale binding, applied exactly once</p>
+              <p><span style={{ color: "#bab1ce" }}>raw</span> = sf3d_output(<span style={{ color: "#dbb58d" }}>best_frame</span>)</p>
+              <p><span style={{ color: "#b7c9a8" }}>sx</span> = bbox.w / raw.extentX</p>
+              <p><span style={{ color: "#b7c9a8" }}>sy</span> = bbox.h / raw.extentY</p>
+              <p><span style={{ color: "#b7c9a8" }}>sz</span> = bbox.d / raw.extentZ</p>
+              <p>mesh.scale(<span style={{ color: "#b7c9a8" }}>sx, sy, sz</span>)</p>
+              <p style={{ color: "#bec7be" }}># glTF node scale written as 1.0</p>
             </div>
             <div
               className="rounded-lg p-3 mt-2"
-              style={{ background: "rgba(125,211,252,0.05)", border: "1px solid rgba(125,211,252,0.12)" }}
+              style={{ background: "rgba(183,201,168,0.05)", border: "1px solid rgba(183,201,168,0.12)" }}
             >
-              <p className="text-xs leading-relaxed" style={{ color: "rgba(240,242,250,0.55)" }}>
+              <p className="text-xs leading-relaxed" style={{ color: "#bec7be" }}>
                 The binding is the only place rescaling happens.{" "}
-                <strong style={{ color: "rgba(240,242,250,0.75)" }}>Downstream scale is always 1.0.</strong>{" "}
+                <strong style={{ color: "rgba(242,238,230,0.75)" }}>Downstream scale is always 1.0.</strong>{" "}
                 Any component that applies its own scale factor corrupts the result and violates the contract.
               </p>
             </div>
-            <p className="text-xs" style={{ color: "rgba(240,242,250,0.3)" }}>
+            <p className="text-xs" style={{ color: "#bec7be" }}>
               Measured accuracy on first live product: bound extents match LiDAR to{" "}
-              <span style={{ color: "rgba(125,211,252,0.7)" }}>1 × 10⁻⁸ m</span>
+              <span style={{ color: "rgba(183,201,168,0.7)" }}>1 × 10⁻⁸ m</span>
             </p>
           </div>
         </div>

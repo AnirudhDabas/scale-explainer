@@ -1,4 +1,4 @@
-import { DESIGN_DECISIONS, DEMO_ROOM } from "@/data/content";
+import { DESIGN_DECISIONS } from "@/data/content";
 import {
   ArchitectureDiagram,
   PipelineTrace,
@@ -11,6 +11,7 @@ import {
   HeroText,
   Marquee,
   GithubCard,
+  SpatialStory,
 } from "@/components/ClientSections";
 import NavLinks from "@/components/NavLinks";
 import FooterLink from "@/components/FooterLink";
@@ -18,6 +19,7 @@ import FooterLink from "@/components/FooterLink";
 export default function Page() {
   return (
     <>
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <LoadingScreen />
       <SceneBackground />
 
@@ -25,34 +27,39 @@ export default function Page() {
       <header
         className="sticky top-0 z-20"
         style={{
-          background: "rgba(7,9,15,0.9)",
+          background: "rgba(17,21,18,0.9)",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
       >
-        <nav className="max-w-5xl mx-auto px-6 sm:px-10 flex items-center justify-between gap-4" style={{ height: 52 }}>
-          <span className="font-mono text-[11px] font-semibold tracking-[0.18em] uppercase shrink-0" style={{ color: "#7dd3fc" }}>
+        <nav className="max-w-6xl mx-auto px-6 sm:px-10 flex items-center justify-between gap-4" style={{ height: 52 }}>
+          <a href="#main-content" aria-label="Scale, back to top" className="focus-ring font-mono text-[11px] font-semibold tracking-[0.18em] uppercase shrink-0" style={{ color: "#b7c9a8" }}>
             SCALE
-          </span>
+          </a>
           <NavLinks />
         </nav>
       </header>
 
-      {/* ── Marquee — scrolling tech specs ── */}
+      {/* ── Marquee. scrolling tech specs ── */}
       <div className="relative z-10">
         <Marquee />
       </div>
 
-      <main className="relative z-10 max-w-5xl mx-auto px-6 sm:px-10 pb-40">
+      <main id="main-content" tabIndex={-1} className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8 pb-20">
 
-        {/* ── Hero — cinematic word-by-word entrance + parallax ── */}
-        <section className="pt-24 pb-28" aria-labelledby="hero-heading">
+        {/* ── Hero. cinematic word-by-word entrance + parallax ── */}
+        <section className="reading-surface hero-surface" aria-labelledby="hero-heading">
 
           {/* Word-by-word with scroll parallax */}
           <HeroText />
 
-          {/* Measurement readout — the most characteristic thing in Scale's world */}
+          <div className="hero-actions">
+            <a href="#experience" className="btn-primary focus-ring hero-cta">Follow the object <span aria-hidden="true">↓</span></a>
+            <a href="#architecture" className="focus-ring text-sm">Jump to the architecture <span aria-hidden="true">↗</span></a>
+          </div>
+
+          {/* Measurement readout. the most characteristic thing in Scale's world */}
           <Reveal delay={0.7}>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mb-10">
               <MeasureTag value="0.3126 × 0.0155 × 0.2212 m" label="MacBook Pro 14, LiDAR" />
@@ -78,7 +85,7 @@ export default function Page() {
               <FeatureCell
                 tag="catalog-free ingest"
                 title="Ingest an object for sale nowhere"
-                body="Kreativ places IKEA SKUs. Houzz places Houzz SKUs. Scale takes the thing in your hand — the floor model, the family heirloom, anything."
+                body="Kreativ places IKEA SKUs. Houzz places Houzz SKUs. Scale takes the thing in your hand: the floor model, the family heirloom, anything."
               />
               <FeatureCell
                 tag="hybrid retrieval"
@@ -89,10 +96,12 @@ export default function Page() {
           </Reveal>
         </section>
 
-        <div className="divider" />
+
+
+        <SpatialStory />
 
         {/* ── Architecture ── */}
-        <section id="architecture" className="pt-24 pb-20" aria-labelledby="arch-heading">
+        <section id="architecture" className="reading-surface" aria-labelledby="arch-heading">
           <ScrollReveal>
             <h2 id="arch-heading" className="display-sm mb-3">System architecture</h2>
             <p className="body mb-10" style={{ maxWidth: 520 }}>
@@ -103,16 +112,16 @@ export default function Page() {
             </p>
           </ScrollReveal>
           <ScrollReveal y={24} delay={0.05}>
-            <div style={{ background: "rgba(11,15,28,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
+            <div style={{ background: "rgba(22,28,24,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
               <ArchitectureDiagram />
             </div>
           </ScrollReveal>
         </section>
 
-        <div className="divider" />
+
 
         {/* ── Pipeline ── */}
-        <section id="pipeline" className="pt-24 pb-20" aria-labelledby="pipeline-heading">
+        <section id="pipeline" className="reading-surface" aria-labelledby="pipeline-heading">
           <ScrollReveal>
             <h2 id="pipeline-heading" className="display-sm mb-3">Object scan pipeline</h2>
             <p className="body mb-10" style={{ maxWidth: 520 }}>
@@ -124,16 +133,16 @@ export default function Page() {
             </p>
           </ScrollReveal>
           <ScrollReveal y={24} delay={0.05}>
-            <div style={{ background: "rgba(11,15,28,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
+            <div style={{ background: "rgba(22,28,24,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
               <PipelineTrace />
             </div>
           </ScrollReveal>
         </section>
 
-        <div className="divider" />
+
 
         {/* ── Scale binding ── */}
-        <section id="binding" className="pt-24 pb-20" aria-labelledby="binding-heading">
+        <section id="binding" className="reading-surface" aria-labelledby="binding-heading">
           <ScrollReveal>
             <h2 id="binding-heading" className="display-sm mb-3">The scale binding</h2>
 
@@ -145,9 +154,9 @@ export default function Page() {
                 { axis: "sz", eq: "0.2212 / 1.12", result: "0.1975" },
               ].map(r => (
                 <div key={r.axis} className="flex items-center gap-2">
-                  <span style={{ color: "#7dd3fc", fontWeight: 600 }}>{r.axis}</span>
-                  <span style={{ color: "rgba(240,242,250,0.32)" }}>= {r.eq}</span>
-                  <span style={{ color: "rgba(240,242,250,0.75)", fontWeight: 600 }}>= {r.result}</span>
+                  <span style={{ color: "#b7c9a8", fontWeight: 600 }}>{r.axis}</span>
+                  <span style={{ color: "#bec7be" }}>= {r.eq}</span>
+                  <span style={{ color: "rgba(242,238,230,0.75)", fontWeight: 600 }}>= {r.result}</span>
                 </div>
               ))}
             </div>
@@ -160,22 +169,22 @@ export default function Page() {
             </p>
             <blockquote
               className="mb-10 text-sm"
-              style={{ maxWidth: 440, color: "rgba(240,242,250,0.35)", borderLeft: "2px solid rgba(125,211,252,0.22)", paddingLeft: 16 }}
+              style={{ maxWidth: 440, color: "#bec7be", borderLeft: "2px solid rgba(183,201,168,0.22)", paddingLeft: 16 }}
             >
               A consumer that applies its own scale factor is a bug, not a preference.
             </blockquote>
           </ScrollReveal>
           <ScrollReveal y={24} delay={0.05}>
-            <div style={{ background: "rgba(11,15,28,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
+            <div style={{ background: "rgba(22,28,24,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
               <ScaleBinding />
             </div>
           </ScrollReveal>
         </section>
 
-        <div className="divider" />
+
 
         {/* ── Fit engine ── */}
-        <section id="fitengine" className="pt-24 pb-20" aria-labelledby="fit-heading">
+        <section id="fitengine" className="reading-surface" aria-labelledby="fit-heading">
           <ScrollReveal>
             <h2 id="fit-heading" className="display-sm mb-3">Fit engine</h2>
             <p className="body mb-3" style={{ maxWidth: 520 }}>
@@ -185,19 +194,19 @@ export default function Page() {
               function, then runs OR-Tools CP-SAT. The language model never emits
               coordinates.
             </p>
-            <p className="caption mb-10">{DEMO_ROOM.label}</p>
+            <p className="caption mb-10">Interactive example: a 4.0 × 3.5 m room. Drag the sofa or use the slider.</p>
           </ScrollReveal>
           <ScrollReveal y={24} delay={0.05}>
-            <div style={{ background: "rgba(11,15,28,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
+            <div style={{ background: "rgba(22,28,24,0.93)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, backdropFilter: "blur(8px)" }} className="p-4 sm:p-6">
               <FitEngine />
             </div>
           </ScrollReveal>
         </section>
 
-        <div className="divider" />
+
 
         {/* ── Design decisions ── */}
-        <section id="decisions" className="pt-24 pb-16" aria-labelledby="decisions-heading">
+        <section id="decisions" className="reading-surface" aria-labelledby="decisions-heading">
           <ScrollReveal>
             <h2 id="decisions-heading" className="display-sm mb-3">Design decisions</h2>
             <p className="body mb-10" style={{ maxWidth: 520 }}>
@@ -210,30 +219,30 @@ export default function Page() {
           >
             {DESIGN_DECISIONS.map((d, i) => (
               <ScrollReveal key={d.id} y={16} delay={0.04 * i}>
-                <details style={{ background: "#0d1120" }} className="group h-full">
+                <details style={{ background: "#1b211d" }} className="group h-full">
                   <summary className="flex items-start gap-3 p-5 cursor-pointer focus-ring">
                     <span
                       className="shrink-0 mt-0.5 text-xs transition-transform duration-200 group-open:rotate-90"
-                      style={{ color: "#7dd3fc" }}
+                      style={{ color: "#b7c9a8" }}
                     >▶</span>
                     <div>
                       <h3
                         className="text-sm font-semibold leading-snug"
-                        style={{ fontFamily: "'Bricolage Grotesque',sans-serif", color: "rgba(240,242,250,0.92)" }}
+                        style={{ fontFamily: "'DM Sans',sans-serif", color: "rgba(242,238,230,0.92)" }}
                       >
                         {d.title}
                       </h3>
-                      <p className="mt-1 text-xs leading-relaxed" style={{ color: "rgba(240,242,250,0.48)" }}>
+                      <p className="mt-1 text-xs leading-relaxed" style={{ color: "#bec7be" }}>
                         {d.summary}
                       </p>
                     </div>
                   </summary>
                   <div
                     className="px-5 pb-5 text-xs leading-relaxed"
-                    style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(240,242,250,0.5)" }}
+                    style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "#bec7be" }}
                   >
                     <p className="mt-4">{d.detail}</p>
-                    <p className="mt-3" style={{ color: "rgba(240,242,250,0.22)", fontSize: 10 }}>{d.source}</p>
+                    <p className="mt-3" style={{ color: "#bec7be", fontSize: 10 }}>{d.source}</p>
                   </div>
                 </details>
               </ScrollReveal>
@@ -241,20 +250,20 @@ export default function Page() {
           </div>
         </section>
 
-        <div className="divider mt-16" />
+
 
         {/* ── Source + team ── */}
-        <section className="pt-16 pb-16" aria-label="Source code">
+        <section className="reading-surface" aria-label="Source code">
           <ScrollReveal>
             {/* Team names */}
             <div className="flex flex-wrap items-center gap-3 mb-8">
-              <span style={{ fontSize: 13, color: "rgba(240,242,250,0.4)" }}>Built by</span>
+              <span style={{ fontSize: 13, color: "#bec7be" }}>Built by</span>
               <FooterLink href="https://ca.linkedin.com/in/justin-tingxuan-wang">Justin</FooterLink>
-              <span style={{ color: "rgba(240,242,250,0.2)", fontSize: 13 }}>·</span>
+              <span style={{ color: "#bec7be", fontSize: 13 }}>·</span>
               <FooterLink href="https://www.linkedin.com/in/anirudh-dabas-ab3998229/">Ani</FooterLink>
-              <span style={{ color: "rgba(240,242,250,0.2)", fontSize: 13 }}>·</span>
+              <span style={{ color: "#bec7be", fontSize: 13 }}>·</span>
               <FooterLink href="https://www.linkedin.com/in/thomas-zhang-022a9b21b/">Thomas</FooterLink>
-              <span style={{ color: "rgba(240,242,250,0.2)", fontSize: 13 }}>·</span>
+              <span style={{ color: "#bec7be", fontSize: 13 }}>·</span>
               <FooterLink href="https://www.linkedin.com/in/pauligwe">Paul</FooterLink>
             </div>
             <div style={{ maxWidth: 640 }}>
@@ -266,10 +275,10 @@ export default function Page() {
       </main>
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "#07090f" }}>
+      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "#111512" }}>
         <div
-          className="max-w-5xl mx-auto px-6 sm:px-10 py-4"
-          style={{ fontSize: 12, color: "rgba(240,242,250,0.22)" }}
+          className="max-w-6xl mx-auto px-6 sm:px-10 py-4"
+          style={{ fontSize: 12, color: "#bec7be" }}
         >
           Scale
         </div>
@@ -280,22 +289,22 @@ export default function Page() {
 
 function MeasureTag({ value, label }: { value: string; label: string }) {
   return (
-    <div className="flex items-baseline gap-2">
-      <span className="font-mono font-semibold" style={{ fontSize: 14, color: "#f0f2fa", letterSpacing: "-0.01em" }}>
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+      <span className="font-mono font-semibold" style={{ fontSize: 14, color: "#f2eee6", letterSpacing: "-0.01em" }}>
         {value}
       </span>
-      <span style={{ fontSize: 11, color: "rgba(240,242,250,0.32)" }}>{label}</span>
+      <span style={{ fontSize: 11, color: "#bec7be" }}>{label}</span>
     </div>
   );
 }
 
 function FeatureCell({ tag, title, body }: { tag: string; title: string; body: string }) {
   return (
-    <div style={{ background: "#0d1120" }} className="p-6">
-      <p className="font-mono mb-3" style={{ fontSize: 11, color: "#7dd3fc", letterSpacing: "0.03em" }}>{tag}</p>
+    <div style={{ background: "#1b211d" }} className="p-6">
+      <p className="font-mono mb-3" style={{ fontSize: 11, color: "#b7c9a8", letterSpacing: "0.03em" }}>{tag}</p>
       <p
         className="font-semibold mb-2"
-        style={{ fontFamily: "'Bricolage Grotesque',sans-serif", fontSize: 14, color: "rgba(240,242,250,0.9)", lineHeight: 1.35 }}
+        style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: "rgba(242,238,230,0.9)", lineHeight: 1.35 }}
       >
         {title}
       </p>

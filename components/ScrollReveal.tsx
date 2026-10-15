@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { useMotionPreferences } from "./MotionPreferences";
 
 export default function ScrollReveal({
   children,
@@ -12,14 +13,18 @@ export default function ScrollReveal({
   y?: number;
   delay?: number;
 }) {
+  const { enabled } = useMotionPreferences();
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 90%", "start 45%"] });
-
-  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  const translateY = useTransform(scrollYProgress, [0, 1], [y, 0]);
+  const visible = useInView(ref, { once: true, margin: "0px 0px 40px 0px" });
 
   return (
-    <motion.div ref={ref} style={{ opacity, y: translateY }} transition={{ delay }}>
+    <motion.div
+      ref={ref}
+      initial={false}
+      animate={{ opacity: 1, y: enabled && !visible ? y : 0, rotateX: enabled && !visible ? 3 : 0 }}
+      style={{ transformPerspective: 1200, transformOrigin: "center top" }}
+      transition={{ duration: enabled ? 0.6 : 0, delay: enabled ? delay : 0 }}
+    >
       {children}
     </motion.div>
   );

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion, useSpring } from "framer-motion";
+import { useMotionPreferences } from "./MotionPreferences";
 
 const ROOM_W = 4.0;
 const ROOM_L = 3.5;
@@ -11,25 +12,9 @@ const DOOR_SWING = 0.9;
 const SOFA_W = 1.8;
 const SOFA_D = 0.9;
 
-// Typewriter hook
-function useTypewriter(text: string, speedMs = 16): string {
-  const [displayed, setDisplayed] = useState("");
-  const textRef = useRef(text);
-  useEffect(() => {
-    textRef.current = text;
-    setDisplayed("");
-    let i = 0;
-    const id = setInterval(() => {
-      i++;
-      if (i > textRef.current.length) { clearInterval(id); return; }
-      setDisplayed(textRef.current.slice(0, i));
-    }, speedMs);
-    return () => clearInterval(id);
-  }, [text, speedMs]);
-  return displayed;
-}
-
 export default function FitEngine() {
+  const { enabled } = useMotionPreferences();
+  const drag = useRef<{ x: number; start: number } | null>(null);
   const [sofaXTarget, setSofaXTarget] = useState(1.0);
   const [showSolver, setShowSolver] = useState(false);
   const [prevViolation, setPrevViolation] = useState(false);
@@ -40,10 +25,11 @@ export default function FitEngine() {
   const [sofaX, setSofaXDisplay] = useState(1.0);
 
   useEffect(() => {
-    springX.set(sofaXTarget);
     const unsub = springX.on("change", (v) => setSofaXDisplay(v));
+    if (enabled) springX.set(sofaXTarget);
+    else { springX.jump(sofaXTarget); setSofaXDisplay(sofaXTarget); }
     return unsub;
-  }, [sofaXTarget, springX]);
+  }, [sofaXTarget, springX, enabled]);
 
   const sofaMinX = sofaX;
   const sofaMaxX = sofaX + SOFA_W;
@@ -51,21 +37,12 @@ export default function FitEngine() {
   const hingeX = DOOR_X;
   const hingeZ = ROOM_L;
 
-  const corners: [number, number][] = [
-    [sofaMinX, sofaMinZ], [sofaMaxX, sofaMinZ],
-    [sofaMinX, ROOM_L],   [sofaMaxX, ROOM_L],
-  ];
-  const arcOverlap = corners.some(([cx, cz]) => {
-    const dx = cx - hingeX;
-    const dz = cz - hingeZ;
-    const dist = Math.sqrt(dx * dx + dz * dz);
-    return dist < DOOR_SWING && cx > hingeX && cz > hingeZ - DOOR_SWING;
-  });
-
+  // Test the closest point on the rectangle, including an arc inside the sofa.
+  const closestX = Math.max(sofaMinX, hingeX);
+  const distance = Math.hypot(closestX - hingeX, Math.min(ROOM_L, hingeZ) - hingeZ);
+  const arcOverlap = sofaMaxX > hingeX && sofaMinZ < hingeZ && distance < DOOR_SWING - 1e-8;
   const overlapAmt = arcOverlap
-    ? Math.max(0, DOOR_SWING - Math.min(...corners.map(([cx, cz]) =>
-        Math.sqrt((cx - hingeX) ** 2 + (cz - hingeZ) ** 2)
-      ))).toFixed(2)
+    ? (DOOR_SWING - distance).toFixed(2)
     : "0.00";
 
   // Detect new violation rising edge
@@ -111,7 +88,7 @@ export default function FitEngine() {
   }, []);
 
   const violationColor = "#f87171";
-  const okColor = "#7dd3fc";
+  const okColor = "#b7c9a8";
 
   // Collision point (near door hinge corner)
   const collisionSvgX = m2x(hingeX + 0.15);
@@ -136,15 +113,15 @@ export default function FitEngine() {
   ]
 }`;
 
-  const typedJson = useTypewriter(fitJson, 12);
+  const typedJson = fitJson;
 
   return (
     <div>
-      <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(240,242,250,0.5)" }}>
+      <p className="text-sm leading-relaxed mb-6" style={{ color: "#bec7be" }}>
         The fit engine checks clearance corridors (90 cm minimum, per ADA/AODA guidance) and door
         swing arcs before anything else. Drag the sofa toward the door to trigger a violation.
         The violation geometry is returned in{" "}
-        <code className="text-xs font-mono" style={{ color: "rgba(125,211,252,0.7)" }}>FitReport v1</code> and drawn in the headset.
+        <code className="text-xs font-mono" style={{ color: "rgba(183,201,168,0.7)" }}>FitReport v1</code> and drawn in the headset.
       </p>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -157,7 +134,7 @@ export default function FitEngine() {
             className="px-4 pt-3 pb-1"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
           >
-            <span className="text-xs font-semibold" style={{ color: "rgba(240,242,250,0.62)" }}>
+            <span className="text-xs font-semibold" style={{ color: "#bec7be" }}>
               Top-down view · room-demo fixture · {ROOM_W} × {ROOM_L} m
             </span>
           </div>
@@ -165,12 +142,20 @@ export default function FitEngine() {
             <svg
               viewBox={`0 0 ${SVG_W} ${SVG_H}`}
               className="w-full"
+              onPointerMove={event => {
+                if (!drag.current) return;
+                const width = event.currentTarget.getBoundingClientRect().width;
+                const delta = (event.clientX - drag.current.x) * SVG_W / width / scaleX;
+                setSofaXTarget(Math.round(Math.max(0, Math.min(ROOM_W - SOFA_W, drag.current.start + delta)) * 100) / 100);
+              }}
+              onPointerUp={() => { drag.current = null; }}
+              onPointerCancel={() => { drag.current = null; }}
               role="img"
               aria-label={`Room layout: sofa at x=${sofaXTarget.toFixed(2)} m. ${arcOverlap ? "Door swing blocked." : "Clearance OK."}`}
             >
               <defs>
                 <pattern id="floor-grid" x={PAD} y={PAD} width={scaleX * 1} height={scaleZ * 1} patternUnits="userSpaceOnUse">
-                  <path d={`M ${scaleX * 1} 0 L 0 0 0 ${scaleZ * 1}`} fill="none" stroke="rgba(125,211,252,0.07)" strokeWidth="0.5"/>
+                  <path d={`M ${scaleX * 1} 0 L 0 0 0 ${scaleZ * 1}`} fill="none" stroke="rgba(183,201,168,0.07)" strokeWidth="0.5"/>
                 </pattern>
               </defs>
 
@@ -178,7 +163,7 @@ export default function FitEngine() {
               <rect
                 x={PAD} y={PAD}
                 width={SVG_W - 2 * PAD} height={SVG_H - 2 * PAD}
-                fill="rgba(15,196,184,0.03)"
+                fill="rgba(183,201,168,0.03)"
               />
               <rect
                 x={PAD} y={PAD}
@@ -190,28 +175,28 @@ export default function FitEngine() {
                 x={PAD} y={PAD}
                 width={SVG_W - 2 * PAD} height={SVG_H - 2 * PAD}
                 fill="none"
-                stroke="rgba(125,211,252,0.3)"
+                stroke="rgba(183,201,168,0.3)"
                 strokeWidth="2"
               />
               {/* Corner markers */}
               {[[PAD,PAD],[SVG_W-PAD,PAD],[PAD,SVG_H-PAD],[SVG_W-PAD,SVG_H-PAD]].map(([cx,cy],i) => (
-                <circle key={i} cx={cx} cy={cy} r="3" fill="rgba(125,211,252,0.4)" />
+                <circle key={i} cx={cx} cy={cy} r="3" fill="rgba(183,201,168,0.4)" />
               ))}
 
-              {/* Measurement annotations — wall tick marks */}
+              {/* Measurement annotations. wall tick marks */}
               {/* Width annotation (bottom) */}
-              <line x1={m2x(0)} y1={SVG_H - PAD + 12} x2={m2x(ROOM_W)} y2={SVG_H - PAD + 12} stroke="rgba(240,242,250,0.2)" strokeWidth="1" />
-              <line x1={m2x(0)} y1={SVG_H - PAD + 8} x2={m2x(0)} y2={SVG_H - PAD + 16} stroke="rgba(240,242,250,0.2)" strokeWidth="1" />
-              <line x1={m2x(ROOM_W)} y1={SVG_H - PAD + 8} x2={m2x(ROOM_W)} y2={SVG_H - PAD + 16} stroke="rgba(240,242,250,0.2)" strokeWidth="1" />
-              <text x={m2x(ROOM_W / 2)} y={SVG_H - PAD + 24} fontSize="9" fill="rgba(240,242,250,0.32)" textAnchor="middle" fontWeight="500">{ROOM_W.toFixed(1)} m</text>
+              <line x1={m2x(0)} y1={SVG_H - PAD + 12} x2={m2x(ROOM_W)} y2={SVG_H - PAD + 12} stroke="rgba(242,238,230,0.2)" strokeWidth="1" />
+              <line x1={m2x(0)} y1={SVG_H - PAD + 8} x2={m2x(0)} y2={SVG_H - PAD + 16} stroke="rgba(242,238,230,0.2)" strokeWidth="1" />
+              <line x1={m2x(ROOM_W)} y1={SVG_H - PAD + 8} x2={m2x(ROOM_W)} y2={SVG_H - PAD + 16} stroke="rgba(242,238,230,0.2)" strokeWidth="1" />
+              <text x={m2x(ROOM_W / 2)} y={SVG_H - PAD + 24} fontSize="9" fill="#bec7be" textAnchor="middle" fontWeight="500">{ROOM_W.toFixed(1)} m</text>
 
               {/* Depth annotation (left) */}
-              <line x1={PAD - 12} y1={m2z(0)} x2={PAD - 12} y2={m2z(ROOM_L)} stroke="rgba(240,242,250,0.2)" strokeWidth="1" />
-              <line x1={PAD - 16} y1={m2z(0)} x2={PAD - 8} y2={m2z(0)} stroke="rgba(240,242,250,0.2)" strokeWidth="1" />
-              <line x1={PAD - 16} y1={m2z(ROOM_L)} x2={PAD - 8} y2={m2z(ROOM_L)} stroke="rgba(240,242,250,0.2)" strokeWidth="1" />
+              <line x1={PAD - 12} y1={m2z(0)} x2={PAD - 12} y2={m2z(ROOM_L)} stroke="rgba(242,238,230,0.2)" strokeWidth="1" />
+              <line x1={PAD - 16} y1={m2z(0)} x2={PAD - 8} y2={m2z(0)} stroke="rgba(242,238,230,0.2)" strokeWidth="1" />
+              <line x1={PAD - 16} y1={m2z(ROOM_L)} x2={PAD - 8} y2={m2z(ROOM_L)} stroke="rgba(242,238,230,0.2)" strokeWidth="1" />
               <text
                 x={PAD - 20} y={m2z(ROOM_L / 2)}
-                fontSize="9" fill="rgba(240,242,250,0.32)" textAnchor="middle"
+                fontSize="9" fill="#bec7be" textAnchor="middle"
                 transform={`rotate(-90, ${PAD - 20}, ${m2z(ROOM_L / 2)})`}
                 fontWeight="500"
               >{ROOM_L.toFixed(1)} m</text>
@@ -220,24 +205,24 @@ export default function FitEngine() {
               <rect
                 x={m2x(DOOR_X)} y={SVG_H - PAD - 2}
                 width={DOOR_W * scaleX} height={8}
-                fill="#07090f"
+                fill="#111512"
               />
               <line x1={m2x(DOOR_X)} y1={SVG_H - PAD} x2={m2x(DOOR_X)} y2={SVG_H - PAD + 6}
-                stroke="rgba(240,242,250,0.3)" strokeWidth="1.5" />
+                stroke="rgba(242,238,230,0.3)" strokeWidth="1.5" />
               <line x1={m2x(DOOR_X + DOOR_W)} y1={SVG_H - PAD} x2={m2x(DOOR_X + DOOR_W)} y2={SVG_H - PAD + 6}
-                stroke="rgba(240,242,250,0.3)" strokeWidth="1.5" />
+                stroke="rgba(242,238,230,0.3)" strokeWidth="1.5" />
 
-              {/* Door swing arc — draws in on mount */}
+              {/* Door swing arc. draws in on mount */}
               <path
                 ref={arcPathRef}
                 d={`M ${arcStartX} ${arcStartY} A ${arcR} ${arcR} 0 0 1 ${arcEndX} ${arcEndY} L ${arcCx} ${arcCy} Z`}
-                fill={arcOverlap ? "rgba(248,113,113,0.12)" : "rgba(15,196,184,0.06)"}
+                fill={arcOverlap ? "rgba(248,113,113,0.12)" : "rgba(183,201,168,0.06)"}
                 stroke={arcOverlap ? violationColor : okColor}
                 strokeWidth="1.5"
                 style={{ transition: "fill 0.3s ease, stroke 0.3s ease" }}
               />
 
-              {/* Collision pulse ring — AnimatePresence in SVG coordinates */}
+              {/* Collision pulse ring. AnimatePresence in SVG coordinates */}
               <AnimatePresence>
                 {collisionFlash && (
                   <>
@@ -271,27 +256,31 @@ export default function FitEngine() {
                 )}
               </AnimatePresence>
 
-              {/* Sofa — position driven by spring value, drawn as proper furniture */}
+              {/* Sofa. position driven by spring value, drawn as proper furniture */}
               {(() => {
                 const sx0 = m2x(sofaX);
                 const sy0 = m2z(ROOM_L - SOFA_D);
                 const sw  = SOFA_W * scaleX;
                 const sh  = SOFA_D * scaleZ;
                 const col = arcOverlap ? violationColor : okColor;
-                const fillBase = arcOverlap ? "rgba(248,113,113,0.08)" : "rgba(125,211,252,0.06)";
+                const fillBase = arcOverlap ? "rgba(248,113,113,0.08)" : "rgba(183,201,168,0.06)";
                 const armW = sw * 0.09;
                 const backH = sh * 0.28;
                 return (
-                  <g style={{ transition: "opacity 0.2s ease" }}>
+                  <g style={{ transition: "opacity 0.2s ease", cursor: "grab", touchAction: "none" }}
+                    onPointerDown={event => {
+                      drag.current = { x: event.clientX, start: sofaXTarget };
+                      event.currentTarget.ownerSVGElement?.setPointerCapture(event.pointerId);
+                    }}>
                     {/* Sofa body */}
                     <rect x={sx0} y={sy0} width={sw} height={sh} rx="5"
                       fill={fillBase} stroke={col} strokeWidth="1.5"
                       style={{ transition: "fill 0.25s, stroke 0.25s" }} />
                     {/* Back cushion */}
                     <rect x={sx0 + armW} y={sy0} width={sw - armW * 2} height={backH} rx="3"
-                      fill={arcOverlap ? "rgba(248,113,113,0.12)" : "rgba(125,211,252,0.08)"}
+                      fill={arcOverlap ? "rgba(248,113,113,0.12)" : "rgba(183,201,168,0.08)"}
                       stroke={col} strokeWidth="0.8" opacity="0.8" />
-                    {/* Seat cushions — 3 equal sections */}
+                    {/* Seat cushions. 3 equal sections */}
                     {[0,1,2].map(i => (
                       <rect key={i}
                         x={sx0 + armW + (sw - armW * 2) * i / 3 + 2}
@@ -299,14 +288,14 @@ export default function FitEngine() {
                         width={(sw - armW * 2) / 3 - 4}
                         height={sh - backH - 6}
                         rx="3"
-                        fill={arcOverlap ? "rgba(248,113,113,0.1)" : "rgba(125,211,252,0.06)"}
+                        fill={arcOverlap ? "rgba(248,113,113,0.1)" : "rgba(183,201,168,0.06)"}
                         stroke={col} strokeWidth="0.6" opacity="0.7"
                       />
                     ))}
                     {/* Arms */}
                     {[sx0, sx0 + sw - armW].map((ax, i) => (
                       <rect key={i} x={ax} y={sy0} width={armW} height={sh} rx="3"
-                        fill={arcOverlap ? "rgba(248,113,113,0.14)" : "rgba(125,211,252,0.1)"}
+                        fill={arcOverlap ? "rgba(248,113,113,0.14)" : "rgba(183,201,168,0.1)"}
                         stroke={col} strokeWidth="0.8" opacity="0.9" />
                     ))}
                     {/* Label */}
@@ -320,8 +309,9 @@ export default function FitEngine() {
 
               {arcOverlap && (
                 <text
-                  x={m2x(DOOR_X + DOOR_SWING + 0.2)}
-                  y={m2z(ROOM_L - 0.6)}
+                  x={m2x(ROOM_W / 2)}
+                  textAnchor="middle"
+                  y={m2z(ROOM_L - SOFA_D) - 14}
                   fontSize="11"
                   fill={violationColor}
                   fontWeight="700"
@@ -333,9 +323,9 @@ export default function FitEngine() {
 
             {/* Slider */}
             <div className="mt-3">
-              <div className="flex justify-between text-xs mb-2" style={{ color: "rgba(240,242,250,0.72)" }}>
+              <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs mb-2" style={{ color: "rgba(242,238,230,0.72)" }}>
                 <label htmlFor="sofa-slider" className="font-medium">Sofa position (x)</label>
-                <span className="font-mono font-bold" style={{ color: "rgba(240,242,250,0.6)" }}>{sofaXTarget.toFixed(2)} m from left wall</span>
+                <span className="font-mono font-bold" style={{ color: "#bec7be" }}>{sofaXTarget.toFixed(2)} m from left wall</span>
               </div>
               <input
                 id="sofa-slider"
@@ -364,8 +354,8 @@ export default function FitEngine() {
               transition={{ duration: 0.22, ease: "easeOut" }}
               className="rounded-xl p-4"
               style={{
-                background: arcOverlap ? "rgba(248,113,113,0.08)" : "rgba(15,196,184,0.06)",
-                border: `1px solid ${arcOverlap ? "rgba(248,113,113,0.25)" : "rgba(15,196,184,0.2)"}`,
+                background: arcOverlap ? "rgba(248,113,113,0.08)" : "rgba(183,201,168,0.06)",
+                border: `1px solid ${arcOverlap ? "rgba(248,113,113,0.25)" : "rgba(183,201,168,0.2)"}`,
               }}
             >
               <div
@@ -374,7 +364,7 @@ export default function FitEngine() {
               >
                 {arcOverlap ? "Violation: door_swing (block)" : "No violations"}
               </div>
-              <p className="text-xs leading-relaxed" style={{ color: arcOverlap ? "rgba(248,113,113,0.7)" : "rgba(15,196,184,0.6)" }}>
+              <p className="text-xs leading-relaxed" style={{ color: arcOverlap ? "#fca5a5" : "#b7c9a8" }}>
                 {arcOverlap
                   ? `Sofa blocks the door swing arc by ${overlapAmt} m. Move it away from the door or choose a narrower piece.`
                   : "Clearance corridors and door swing arc are clear. Drag the sofa toward the door to trigger a violation."}
@@ -387,13 +377,13 @@ export default function FitEngine() {
             className="rounded-xl p-4 flex-1"
             style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.06)" }}
           >
-            <p className="text-xs font-semibold mb-2" style={{ color: "rgba(240,242,250,0.6)" }}>FitReport v1 (live)</p>
+            <p className="text-xs font-semibold mb-2" style={{ color: "#bec7be" }}>FitReport v1 (live)</p>
             <pre
               className="text-[10px] font-mono leading-relaxed overflow-x-auto max-h-48 whitespace-pre"
-              style={{ color: "rgba(240,242,250,0.4)" }}
+              style={{ color: "#bec7be" }}
             >
               {typedJson}
-              <span style={{ borderRight: "1px solid rgba(125,211,252,0.6)", animation: "blink 1.1s step-end infinite", marginLeft: 1 }} />
+              <span style={{ borderRight: "1px solid rgba(183,201,168,0.6)", animation: "blink 1.1s step-end infinite", marginLeft: 1 }} />
             </pre>
           </div>
 
@@ -405,7 +395,7 @@ export default function FitEngine() {
             <button
               onClick={() => setShowSolver(!showSolver)}
               className="text-xs font-semibold transition-colors focus-ring w-full text-left"
-              style={{ color: "rgba(15,196,184,0.7)" }}
+              style={{ color: "#b7c9a8" }}
               aria-expanded={showSolver}
             >
               {showSolver ? "Hide solver (POST /solve) ↑" : "Show solver (POST /solve) ↓"}
@@ -419,19 +409,19 @@ export default function FitEngine() {
                   transition={{ duration: 0.22, ease: "easeOut" }}
                   style={{ overflow: "hidden" }}
                 >
-                  <div className="mt-3 text-xs leading-relaxed space-y-2" style={{ color: "rgba(240,242,250,0.4)" }}>
+                  <div className="mt-3 text-xs leading-relaxed space-y-2" style={{ color: "#bec7be" }}>
                     <p>
-                      <code style={{ color: "rgba(240,242,250,0.6)" }}>POST /solve</code> takes an intent string and
+                      <code style={{ color: "#bec7be" }}>POST /solve</code> takes an intent string and
                       optional budget. The designer-agent translates it into an objective function
-                      and constraints. <strong style={{ color: "rgba(240,242,250,0.5)" }}>It never emits coordinates.</strong>{" "}
+                      and constraints. <strong style={{ color: "#bec7be" }}>It never emits coordinates.</strong>{" "}
                       OR-Tools CP-SAT discretises the floor to a grid and places objects.
                     </p>
                     <p>
-                      If infeasible, <code style={{ color: "rgba(240,242,250,0.6)" }}>answer</code> says so explicitly:
+                      If infeasible, <code style={{ color: "#bec7be" }}>answer</code> says so explicitly:
                       &ldquo;There is no arrangement of these three pieces that keeps a 90 cm walkway
                       to the door; drop the ottoman, or go 20 cm narrower on the couch.&rdquo;
                     </p>
-                    <p className="text-[10px] pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(240,242,250,0.50)" }}>
+                    <p className="text-[10px] pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "#bec7be" }}>
                       Source: BUILD_DOC.md, Component E; .claude/contracts.md, POST /solve
                     </p>
                   </div>
