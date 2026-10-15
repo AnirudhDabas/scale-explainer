@@ -31,6 +31,16 @@ export const Particles = dynamic(
   { ssr: false }
 );
 
+export const HeroText = dynamic(
+  () => import("@/components/HeroText"),
+  { ssr: false }
+);
+
+export const Marquee = dynamic(
+  () => import("@/components/Marquee"),
+  { ssr: false }
+);
+
 export const SceneBackground = dynamic(
   () => import("@/components/SceneBackground"),
   { ssr: false }
@@ -42,3 +52,7 @@ export const LoadingScreen = dynamic(
 );
 
 export { default as Reveal } from "@/components/Reveal";
+export const ScrollReveal = dynamic(
+  () => import("@/components/ScrollReveal"),
+  { ssr: false }
+);
