@@ -35,7 +35,7 @@ body {
 
 .display-sm {
   font-family: 'Bricolage Grotesque', sans-serif;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2.1rem, 4.5vw, 3.4rem);
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.1;
