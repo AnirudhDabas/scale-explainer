@@ -66,7 +66,7 @@ export default function FitEngine() {
 
   return (
     <div>
-      <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(226,232,240,0.5)" }}>
+      <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(240,242,250,0.5)" }}>
         The fit engine checks clearance corridors (90 cm minimum, per ADA/AODA guidance) and door
         swing arcs before anything else. Drag the sofa toward the door to trigger a violation.
         The violation geometry is returned in{" "}
@@ -83,7 +83,7 @@ export default function FitEngine() {
             className="px-4 pt-3 pb-1"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
           >
-            <span className="text-xs font-semibold" style={{ color: "rgba(226,232,240,0.62)" }}>
+            <span className="text-xs font-semibold" style={{ color: "rgba(240,242,250,0.62)" }}>
               Top-down view · room-demo fixture · {ROOM_W} x {ROOM_L} m
             </span>
           </div>
@@ -110,9 +110,9 @@ export default function FitEngine() {
                 fill="#06090f"
               />
               <line x1={m2x(DOOR_X)} y1={SVG_H - PAD} x2={m2x(DOOR_X)} y2={SVG_H - PAD + 6}
-                stroke="rgba(226,232,240,0.3)" strokeWidth="1.5" />
+                stroke="rgba(240,242,250,0.3)" strokeWidth="1.5" />
               <line x1={m2x(DOOR_X + DOOR_W)} y1={SVG_H - PAD} x2={m2x(DOOR_X + DOOR_W)} y2={SVG_H - PAD + 6}
-                stroke="rgba(226,232,240,0.3)" strokeWidth="1.5" />
+                stroke="rgba(240,242,250,0.3)" strokeWidth="1.5" />
 
               {/* Door swing arc */}
               <path
@@ -131,8 +131,8 @@ export default function FitEngine() {
                 width={SOFA_W * scaleX}
                 height={SOFA_D * scaleZ}
                 rx="5"
-                fill={arcOverlap ? "rgba(248,113,113,0.12)" : "rgba(226,232,240,0.35)"}
-                stroke={arcOverlap ? violationColor : "rgba(226,232,240,0.62)"}
+                fill={arcOverlap ? "rgba(248,113,113,0.12)" : "rgba(240,242,250,0.35)"}
+                stroke={arcOverlap ? violationColor : "rgba(240,242,250,0.62)"}
                 strokeWidth={arcOverlap ? 2 : 1.5}
                 style={{ transition: "all 0.25s ease" }}
               />
@@ -140,7 +140,7 @@ export default function FitEngine() {
                 x={m2x(sofaX + SOFA_W / 2)}
                 y={m2z(ROOM_L - SOFA_D / 2) + 4}
                 fontSize="10"
-                fill={arcOverlap ? violationColor : "rgba(226,232,240,0.6)"}
+                fill={arcOverlap ? violationColor : "rgba(240,242,250,0.6)"}
                 textAnchor="middle"
                 fontWeight="600"
                 style={{ transition: "fill 0.25s ease" }}
@@ -161,12 +161,12 @@ export default function FitEngine() {
               )}
 
               {/* Labels */}
-              <text x={m2x(ROOM_W / 2)} y={SVG_H - 4} fontSize="9" fill="rgba(226,232,240,0.3)" textAnchor="middle">
+              <text x={m2x(ROOM_W / 2)} y={SVG_H - 4} fontSize="9" fill="rgba(240,242,250,0.3)" textAnchor="middle">
                 {ROOM_W} m
               </text>
               <text
                 x={PAD - 5} y={SVG_H / 2}
-                fontSize="9" fill="rgba(226,232,240,0.3)" textAnchor="middle"
+                fontSize="9" fill="rgba(240,242,250,0.3)" textAnchor="middle"
                 transform={`rotate(-90, ${PAD - 5}, ${SVG_H / 2})`}
               >
                 {ROOM_L} m
@@ -175,7 +175,7 @@ export default function FitEngine() {
 
             {/* Slider */}
             <div className="mt-3">
-              <div className="flex justify-between text-xs mb-2" style={{ color: "rgba(226,232,240,0.72)" }}>
+              <div className="flex justify-between text-xs mb-2" style={{ color: "rgba(240,242,250,0.72)" }}>
                 <label htmlFor="sofa-slider" className="font-medium">Sofa position (x)</label>
                 <span className="font-mono font-bold text-white/60">{sofaX.toFixed(2)} m from left wall</span>
               </div>
@@ -225,7 +225,7 @@ export default function FitEngine() {
             <p className="text-xs font-semibold text-white/60 mb-2">FitReport v1 (live)</p>
             <pre
               className="text-[10px] font-mono leading-relaxed overflow-x-auto max-h-48 whitespace-pre"
-              style={{ color: "rgba(226,232,240,0.4)" }}
+              style={{ color: "rgba(240,242,250,0.4)" }}
             >
 {`{
   "ok": ${!arcOverlap},
@@ -262,7 +262,7 @@ export default function FitEngine() {
               {showSolver ? "Hide solver (POST /solve) ↑" : "Show solver (POST /solve) ↓"}
             </button>
             {showSolver && (
-              <div className="mt-3 text-xs leading-relaxed space-y-2" style={{ color: "rgba(226,232,240,0.4)" }}>
+              <div className="mt-3 text-xs leading-relaxed space-y-2" style={{ color: "rgba(240,242,250,0.4)" }}>
                 <p>
                   <code className="text-white/60">POST /solve</code> takes an intent string and
                   optional budget. The designer-agent translates it into an objective function
@@ -274,7 +274,7 @@ export default function FitEngine() {
                   &ldquo;There is no arrangement of these three pieces that keeps a 90 cm walkway
                   to the door; drop the ottoman, or go 20 cm narrower on the couch.&rdquo;
                 </p>
-                <p className="text-[10px] pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(226,232,240,0.50)" }}>
+                <p className="text-[10px] pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(240,242,250,0.50)" }}>
                   Source: BUILD_DOC.md, Component E; .claude/contracts.md, POST /solve
                 </p>
               </div>

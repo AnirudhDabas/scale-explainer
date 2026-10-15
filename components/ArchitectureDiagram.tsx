@@ -105,7 +105,7 @@ const TEAL   = "#7dd3fc";
 const BLUE   = "#5b9cf6";
 const ORANGE = "#fb8c42";
 const PURPLE = "#a78bfa";
-const ARROW  = "rgba(226,232,240,0.3)";
+const ARROW  = "rgba(240,242,250,0.3)";
 
 export default function ArchitectureDiagram() {
   const [selectedNode, setSelectedNode] = useState<NodeId | null>(null);
@@ -206,7 +206,7 @@ export default function ArchitectureDiagram() {
           </svg>
         </div>
       </div>
-      <p className="text-center mt-2" style={{ fontSize: 11, color: "rgba(240,244,255,0.2)" }}>
+      <p className="text-center mt-2" style={{ fontSize: 11, color: "rgba(240,242,250,0.2)" }}>
         Select any component for details · scroll right on narrow screens
       </p>
 
@@ -216,17 +216,17 @@ export default function ArchitectureDiagram() {
           <button
             onClick={() => setSelectedNode(null)}
             className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-lg focus-ring transition-colors text-lg"
-            style={{ color: "rgba(240,244,255,0.62)", background: "rgba(255,255,255,0.05)" }}
+            style={{ color: "rgba(240,242,250,0.62)", background: "rgba(255,255,255,0.05)" }}
             aria-label="Close"
           >
             ×
           </button>
           <p className="text-[10px] font-semibold tracking-widest uppercase mb-1.5" style={{ color: flowColor }}>Component</p>
           <h3 className="text-base font-bold mb-2" style={{ color: "#f0f4ff" }}>{detail.title}</h3>
-          <p className="text-sm leading-relaxed mb-3" style={{ color: "rgba(240,244,255,0.5)" }}>{detail.role}</p>
+          <p className="text-sm leading-relaxed mb-3" style={{ color: "rgba(240,242,250,0.5)" }}>{detail.role}</p>
           <div className="text-xs space-y-1.5 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-            <p style={{ color: "rgba(240,244,255,0.62)" }}><span className="font-semibold" style={{ color: "rgba(240,244,255,0.5)" }}>Tech:</span> {detail.tech}</p>
-            <p style={{ color: "rgba(240,244,255,0.50)" }}><span className="font-semibold" style={{ color: "rgba(240,244,255,0.62)" }}>Source:</span> {detail.source}</p>
+            <p style={{ color: "rgba(240,242,250,0.62)" }}><span className="font-semibold" style={{ color: "rgba(240,242,250,0.5)" }}>Tech:</span> {detail.tech}</p>
+            <p style={{ color: "rgba(240,242,250,0.50)" }}><span className="font-semibold" style={{ color: "rgba(240,242,250,0.62)" }}>Source:</span> {detail.source}</p>
           </div>
         </div>
       )}
@@ -266,12 +266,12 @@ function N({
       {/* Accent top bar when selected */}
       {sel && <rect x={x + 1} y={y + 1} width={w - 2} height={3} rx={4} fill={acc} opacity="0.7" />}
       {/* Label */}
-      <text x={mid} y={y + 28} fontSize="12" fill={sel ? acc : "rgba(240,244,255,0.85)"} fontWeight="700" textAnchor="middle">{label}</text>
+      <text x={mid} y={y + 28} fontSize="12" fill={sel ? acc : "rgba(240,242,250,0.85)"} fontWeight="700" textAnchor="middle">{label}</text>
       {/* Sub line 1 */}
-      <text x={mid} y={y + 44} fontSize="9" fill="rgba(240,244,255,0.62)" textAnchor="middle">{sub1}</text>
+      <text x={mid} y={y + 44} fontSize="9" fill="rgba(240,242,250,0.62)" textAnchor="middle">{sub1}</text>
       {/* Sub line 2 — only if node is tall enough */}
       {h >= 70 && (
-        <text x={mid} y={y + 57} fontSize="9" fill="rgba(240,244,255,0.50)" textAnchor="middle">{sub2}</text>
+        <text x={mid} y={y + 57} fontSize="9" fill="rgba(240,242,250,0.50)" textAnchor="middle">{sub2}</text>
       )}
     </g>
   );

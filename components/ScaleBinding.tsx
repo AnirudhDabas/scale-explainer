@@ -29,7 +29,7 @@ export default function ScaleBinding() {
 
   return (
     <div>
-      <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(226,232,240,0.5)" }}>
+      <p className="text-sm leading-relaxed mb-6" style={{ color: "rgba(240,242,250,0.5)" }}>
         SF3D outputs a mesh normalised to roughly ±1 on every axis. The adapter rescales it to the
         LiDAR-measured bounding box in a single pass. Adjust the measured dimensions to see the
         binding compute in real time.
@@ -39,7 +39,7 @@ export default function ScaleBinding() {
       </p>
 
       <div className="flex flex-wrap gap-2 mb-6">
-        <span className="text-xs font-semibold self-center" style={{ color: "rgba(226,232,240,0.62)" }}>Presets:</span>
+        <span className="text-xs font-semibold self-center" style={{ color: "rgba(240,242,250,0.62)" }}>Presets:</span>
         {PRESETS.map((p) => {
           const isActive = w === p.w && h === p.h && d === p.d;
           return (
@@ -65,7 +65,7 @@ export default function ScaleBinding() {
           ].map(({ label, val, set, min, max }) => (
             <div key={label}>
               <div className="flex justify-between mb-2">
-                <label className="text-xs font-medium" style={{ color: "rgba(226,232,240,0.6)" }}>{label}</label>
+                <label className="text-xs font-medium" style={{ color: "rgba(240,242,250,0.6)" }}>{label}</label>
                 <span className="text-xs font-mono font-bold text-teal">{val.toFixed(4)} m</span>
               </div>
               <input
@@ -95,12 +95,12 @@ export default function ScaleBinding() {
               ].map(({ axis, formula, val }) => (
                 <div key={axis} className="flex items-center gap-2">
                   <span className="w-6 font-bold text-teal">{axis}</span>
-                  <span style={{ color: "rgba(226,232,240,0.62)" }}>= {formula}</span>
+                  <span style={{ color: "rgba(240,242,250,0.62)" }}>= {formula}</span>
                   <span className="ml-auto font-bold text-white">= {val.toFixed(4)}</span>
                 </div>
               ))}
             </div>
-            <p className="text-[10px] mt-3 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(226,232,240,0.50)" }}>
+            <p className="text-[10px] mt-3 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", color: "rgba(240,242,250,0.50)" }}>
               Source: services/gen/app/generate_server.py, docs/SYSTEM_STATE.md
             </p>
           </div>
@@ -128,7 +128,7 @@ export default function ScaleBinding() {
               />
               <text x="70" y="115" fontSize="8.5" fill="rgba(167,139,250,0.7)" textAnchor="middle">approx {rawX.toFixed(1)}</text>
               <text x="70" y="127" fontSize="8.5" fill="rgba(167,139,250,0.7)" textAnchor="middle">x {rawY.toFixed(1)}</text>
-              <text x="70" y="156" fontSize="8" fill="rgba(226,232,240,0.3)" textAnchor="middle">normalised units</text>
+              <text x="70" y="156" fontSize="8" fill="rgba(240,242,250,0.3)" textAnchor="middle">normalised units</text>
 
               {/* Arrow */}
               <path d="M115 110 H155" stroke="#7dd3fc" strokeWidth="2" fill="none" markerEnd="url(#cbarr-sc)" />
@@ -149,7 +149,7 @@ export default function ScaleBinding() {
               <text x="220" y="152" fontSize="9" fill="rgba(15,196,184,0.8)" textAnchor="middle" fontWeight="600">
                 {w.toFixed(3)} x {h.toFixed(3)} m
               </text>
-              <text x="220" y="165" fontSize="8" fill="rgba(226,232,240,0.3)" textAnchor="middle">= LiDAR measurement</text>
+              <text x="220" y="165" fontSize="8" fill="rgba(240,242,250,0.3)" textAnchor="middle">= LiDAR measurement</text>
 
               <defs>
                 <marker id="cbarr-sc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
@@ -158,7 +158,7 @@ export default function ScaleBinding() {
               </defs>
             </svg>
 
-            <div className="text-xs text-center" style={{ color: "rgba(226,232,240,0.4)" }}>
+            <div className="text-xs text-center" style={{ color: "rgba(240,242,250,0.4)" }}>
               <p>The binding is the only place rescaling happens.</p>
               <p className="font-semibold text-white/70 mt-0.5">Downstream scale is always 1.0.</p>
             </div>

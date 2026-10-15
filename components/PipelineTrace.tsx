@@ -10,9 +10,9 @@ const C = {
   blue: "#5b9cf6",
   orange: "#fb8c42",
   purple: "#a78bfa",
-  text: "rgba(226,232,240,0.85)",
-  muted: "rgba(226,232,240,0.4)",
-  dim: "rgba(226,232,240,0.2)",
+  text: "rgba(240,242,250,0.85)",
+  muted: "rgba(240,242,250,0.4)",
+  dim: "rgba(240,242,250,0.2)",
   bg: "rgba(255,255,255,0.03)",
   border: "rgba(255,255,255,0.08)",
 };
@@ -190,7 +190,7 @@ function StepVisual({ visual }: { visual: Visual }) {
         <rect x="60" y="153" width="200" height="7" fill={C.teal} opacity="0.2" />
         <rect x="60" y="20" width="7" height="140" fill={C.teal} opacity="0.2" />
         <rect x="253" y="20" width="7" height="140" fill={C.teal} opacity="0.2" />
-        <rect x="128" y="70" width="40" height="28" rx="3" fill="rgba(226,232,240,0.12)" stroke="rgba(226,232,240,0.3)" strokeWidth="1.5" transform="rotate(18, 148, 84)" />
+        <rect x="128" y="70" width="40" height="28" rx="3" fill="rgba(240,242,250,0.12)" stroke="rgba(240,242,250,0.3)" strokeWidth="1.5" transform="rotate(18, 148, 84)" />
         <text x="155" y="112" fontSize="9" fill={C.muted} textAnchor="middle">MacBook Pro 14</text>
         <rect x="66" y="130" width="104" height="18" rx="4" fill="rgba(15,196,184,0.1)" stroke="rgba(15,196,184,0.25)" strokeWidth="1" />
         <text x="118" y="143" fontSize="8" fill={C.teal} textAnchor="middle" fontWeight="700">scale: 1.0 · y: 0.0 (floor)</text>
@@ -241,7 +241,7 @@ export default function PipelineTrace() {
             className="px-4 py-3"
             style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
           >
-            <pre className="text-[10px] font-mono leading-relaxed overflow-x-auto max-h-28 whitespace-pre" style={{ color: "rgba(226,232,240,0.4)" }}>
+            <pre className="text-[10px] font-mono leading-relaxed overflow-x-auto max-h-28 whitespace-pre" style={{ color: "rgba(240,242,250,0.4)" }}>
               {current.dataOut}
             </pre>
           </div>
@@ -257,7 +257,7 @@ export default function PipelineTrace() {
             </div>
           </div>
 
-          <p className="text-sm leading-relaxed mb-4" style={{ color: "rgba(226,232,240,0.55)" }}>
+          <p className="text-sm leading-relaxed mb-4" style={{ color: "rgba(240,242,250,0.55)" }}>
             {current.body}
           </p>
 
@@ -276,7 +276,7 @@ export default function PipelineTrace() {
               style={{
                 background: "rgba(0,0,0,0.2)",
                 border: "1px solid rgba(255,255,255,0.06)",
-                color: "rgba(226,232,240,0.72)",
+                color: "rgba(240,242,250,0.72)",
               }}
             >
               {current.technical}
@@ -291,7 +291,7 @@ export default function PipelineTrace() {
             >
               ← Prev
             </button>
-            <span className="text-sm flex-1 text-center" style={{ color: "rgba(226,232,240,0.3)" }} aria-live="polite">
+            <span className="text-sm flex-1 text-center" style={{ color: "rgba(240,242,250,0.3)" }} aria-live="polite">
               {step + 1} / {total}
             </span>
             <button
@@ -315,7 +315,7 @@ export default function PipelineTrace() {
             style={{
               background: i === step ? "rgba(15,196,184,0.15)" : "rgba(255,255,255,0.04)",
               border: `1px solid ${i === step ? "rgba(15,196,184,0.4)" : "rgba(255,255,255,0.08)"}`,
-              color: i === step ? "#7dd3fc" : "rgba(226,232,240,0.4)",
+              color: i === step ? "#7dd3fc" : "rgba(240,242,250,0.4)",
               transform: i === step ? "translateY(-1px)" : "none",
               boxShadow: i === step ? "0 4px 16px rgba(15,196,184,0.15)" : "none",
             }}
